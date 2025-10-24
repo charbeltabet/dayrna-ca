@@ -8,3 +8,8 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+:root {
+    --radius-field: 0rem;
+    --color-background: #EEDDB8;
+}

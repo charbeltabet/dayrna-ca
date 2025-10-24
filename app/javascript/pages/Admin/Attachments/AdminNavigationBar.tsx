@@ -1,0 +1,62 @@
+import { faPhotoFilm, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "@inertiajs/react";
+
+export default function AdminNavigationBar() {
+  const path = window.location.pathname;
+  return (
+    <div style={{
+      height: '70px',
+      width: '100%',
+      backgroundColor: 'var(--color-background)',
+      display: 'flex',
+      flexDirection: 'row',
+    }}>
+      <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar-start">
+          <img
+            src="/logo.png"
+            style={{
+              height: '60px',
+            }}
+          />
+          Administrator
+        </div>
+        <div className="navbar-center">
+          <ul className="menu bg-base-300 lg:menu-horizontal">
+            <li
+              className={/^\/admin\/attachments(\/\d+)?$/.test(path) ? "menu-active" : ""}
+            >
+              <Link
+                href="/admin/attachments"
+              >
+                <FontAwesomeIcon icon={faPhotoFilm} />
+                Attachments
+              </Link>
+            </li>
+          </ul>
+          <ul className="menu bg-base-300 lg:menu-horizontal">
+            <li
+              className={/^\/admin\/attachments\/groups(\/.*)?$/.test(path) ? "menu-active" : ""}
+            >
+              <Link
+                href="/admin/attachments/groups"
+              >
+                <FontAwesomeIcon icon={faPhotoFilm} />
+                Attachment Groups
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="navbar-end d-flex flex-row gap-2">
+          <Link href="/">
+            <button className="btn btn-primary">
+              Visitor View
+              <FontAwesomeIcon icon={faUsers} />
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
