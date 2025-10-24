@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms";
+
+@plugin "daisyui";
+
+/* oklch(29% 0.066 243.157) */
+
+
+@plugin "daisyui/theme" {
+    name: "church";
+    default: true;
+    prefersdark: false;
+    color-scheme: "light";
+    --color-base-100: #F3E7CE;
+    --color-base-200: #FBF7EF;
+    --color-base-300: #EBD8AD;
+    --color-base-content: #451004;
+    --color-primary: #D07A25;
+    --color-primary-content: #FBF7EF;
+    --color-secondary: oklch(89% 0.057 293.283);
+    --color-secondary-content: oklch(27% 0.072 132.109);
+    --color-accent: #C5974C;
+    --color-accent-content: oklch(27% 0.072 132.109);
+    --color-neutral: #451004;
+    --color-neutral-content: oklch(98% 0.001 106.423);
+    --color-info: #681EC2;
+    --color-info-content: oklch(97% 0.014 254.604);
+    --color-success: #03A032;
+    --color-success-content: oklch(98% 0.014 180.72);
+    --color-warning: #F57200;
+    --color-warning-content: oklch(98% 0.016 73.684);
+    --color-error: #8d1a36;
+    --color-error-content: oklch(97% 0.014 343.198);
+    --radius-selector: 1rem;
+    --radius-field: 1rem;
+    --radius-box: 1rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 1;
+    --noise: 0;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Instrument Serif", serif;
+    font-style: normal;
+    /* font-weight: 400; */
+}
+
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.hidden-scrollbar {
+    -ms-overflow-style: none;
+    /* Internet Explorer 10+ */
+    scrollbar-width: none;
+    /* Firefox */
+}
