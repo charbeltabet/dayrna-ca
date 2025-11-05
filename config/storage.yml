@@ -12,7 +12,7 @@ cloudflare_dev:
   secret_access_key: <%= Rails.application.credentials.dig(:cloudflare, :secret_access_key) %>
   region: auto
   bucket: dayrna-dev
-  public: false
+  public: true
   endpoint: <%= Rails.application.credentials.dig(:cloudflare, :r2_endpoint) %>
   request_checksum_calculation: "when_required"
   response_checksum_validation: "when_required"

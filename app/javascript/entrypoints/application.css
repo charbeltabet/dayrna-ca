@@ -55,8 +55,20 @@ h6 {
     /* font-weight: 400; */
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body {
     font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+#app {
+    height: 100%;
+    width: 100%;
 }
 
 .hidden-scrollbar {

@@ -13,7 +13,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!flash) return;
 
     Object.entries(flash).forEach(([level, message]) => {
-      console.log('Processing flash', { level, message }, level === 'success', level === 'error');
       if (level === 'success' || level === 'error') {
         toast.custom((id) => (
           <Toast

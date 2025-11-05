@@ -1,8 +1,13 @@
 import { faYoutube, faFacebook } from "@fortawesome/free-brands-svg-icons";
 import { faHouse, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import HomeContext from "./Home/context";
+import { useContext } from "react";
 
 export default function TopRibon() {
+  const { homePageData } = useContext(HomeContext);
+  const topRibbon = homePageData?.top_ribbon || {};
+
   return (
     <div style={{
       backgroundColor: 'var(--color-neutral)',
@@ -13,59 +18,82 @@ export default function TopRibon() {
       gap: '40px',
       justifyContent: 'flex-start',
       width: '100%',
+      flexShrink: 0,
+      zIndex: 1000,
     }}>
 
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <FontAwesomeIcon
-          icon={faHouse}
-          style={{
-          }}
-        />
-        <div>
-          1520 Av. Ducharme, Outremont, QC H2V 1G1, Canada
+      {topRibbon.address && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <FontAwesomeIcon
+            icon={faHouse}
+            style={{
+            }}
+          />
+          <div>
+            {topRibbon.address}
+          </div>
         </div>
+      )}
+
+      {topRibbon.phone && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <FontAwesomeIcon
+            icon={faPhone}
+            style={{
+            }}
+          />
+          <div>
+            {topRibbon.phone}
+          </div>
+        </div>
+      )}
+
+      {topRibbon.email && (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <FontAwesomeIcon
+            icon={faEnvelope}
+            style={{
+            }}
+          />
+          <div>
+            {topRibbon.email}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '12px' }}>
+        {topRibbon.youtube_url && (
+          <a href={topRibbon.youtube_url} target="_blank" rel="noopener noreferrer">
+            <FontAwesomeIcon icon={faYoutube} />
+          </a>
+        )}
+
+        {topRibbon.facebook_url && (
+          <a href={topRibbon.facebook_url} target="_blank" rel="noopener noreferrer">
+            <FontAwesomeIcon icon={faFacebook} />
+          </a>
+        )}
       </div>
 
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <FontAwesomeIcon
-          icon={faPhone}
-          style={{
-          }}
-        />
-        <div>
-          (514) 271-2000
-        </div>
-      </div>
-
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <FontAwesomeIcon
-          icon={faEnvelope}
-          style={{
-          }}
-        />
-        <div>
-          info@dayrna.ca
-        </div>
-      </div>
-
+      {/* links to add here */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -74,8 +102,7 @@ export default function TopRibon() {
         justifyContent: 'flex-end',
         alignItems: 'center',
       }}>
-        <FontAwesomeIcon icon={faYoutube} />
-        <FontAwesomeIcon icon={faFacebook} />
+
       </div>
 
     </div>

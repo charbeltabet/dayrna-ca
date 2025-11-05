@@ -1,8 +1,14 @@
 import { faChurch, faCalendarDays, faHandsPraying } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import FactItem from "./FactItem";
+import ShowcaseGallery from "./ShowcaseGallery";
+import HomeContext from "./Home/context";
+import { useContext } from "react";
 
 export default function HeroSection() {
+  const { homePageData } = useContext(HomeContext);
+  const heroSection = homePageData?.hero_section || {};
+
   return (
     <div className="hero bg-base-300">
       <div className="hero-content flex-col lg:flex-row w-full justify-between p-0 py-6" style={{
@@ -13,84 +19,107 @@ export default function HeroSection() {
           gridTemplateColumns: 'min-content',
           gap: '0.5rem',
         }}>
-          <p className="" style={{ gridColumn: '1', whiteSpace: 'nowrap' }}>Paroisse et Monastère</p>
-          <h1 className="text-5xl font-bold" style={{
-            gridColumn: '1',
-            whiteSpace: 'nowrap',
-            margin: 0
-          }}>
-            St. Antoine - Outremont
-          </h1>
-          <p className="pt-6 pb-3" style={{
-            gridColumn: '1',
-            wordWrap: 'break-word',
-            overflowWrap: 'break-word',
-            hyphens: 'auto'
-          }}>
-            Au service des besoins spirituels et communautaires de notre congrégation avec dévotion et foi à Montréal depuis 1984.
-          </p>
-          <button className="btn btn-primary" style={{ gridColumn: '1', justifySelf: 'start' }}>
-            À propos de nous
-          </button>
+          {heroSection.subtitle && (
+            <p className="" style={{ gridColumn: '1', whiteSpace: 'nowrap' }}>
+              {heroSection.subtitle}
+            </p>
+          )}
+          {heroSection.heading && (
+            <h1 className="text-5xl font-bold" style={{
+              gridColumn: '1',
+              whiteSpace: 'nowrap',
+              margin: 0
+            }}>
+              {heroSection.heading}
+            </h1>
+          )}
+          {heroSection.description && (
+            <p className="pt-6 pb-3" style={{
+              gridColumn: '1',
+              wordWrap: 'break-word',
+              overflowWrap: 'break-word',
+              hyphens: 'auto'
+            }}>
+              {heroSection.description}
+            </p>
+          )}
+          {heroSection.button_text && (
+            <a
+              href={heroSection.button_link || '#'}
+              className="btn btn-primary"
+              style={{ gridColumn: '1', justifySelf: 'start' }}
+            >
+              {heroSection.button_text}
+            </a>
+          )}
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            marginTop: '20px',
-          }}>
+          {(heroSection.mass_schedule?.weekday || heroSection.mass_schedule?.sunday || heroSection.sanctuary_hours) && (
             <div style={{
               display: 'flex',
-              flexDirection: 'row',
-              gap: '7.5px',
+              flexDirection: 'column',
+              marginTop: '20px',
             }}>
               <div style={{
                 display: 'flex',
                 flexDirection: 'row',
-                gap: '20px',
-                backgroundColor: 'var(--color-base-200)',
-                width: 'fit-content',
+                gap: '7.5px',
               }}>
-                <FactItem icon={faChurch} title="Messes">
+                {(heroSection.mass_schedule?.weekday || heroSection.mass_schedule?.sunday) && (
                   <div style={{
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
+                    flexDirection: 'row',
+                    gap: '20px',
+                    backgroundColor: 'var(--color-base-200)',
+                    width: 'fit-content',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
-                      <span><strong>Lundi - Samedi:</strong> 19h00</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
-                      <span><strong>Dimanche:</strong> 10h00, 11h30, 19h00</span>
-                    </div>
+                    <FactItem icon={faChurch} title="Messes">
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}>
+                        {heroSection.mass_schedule?.weekday && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
+                            <span><strong>Lundi - Samedi:</strong> {heroSection.mass_schedule.weekday}</span>
+                          </div>
+                        )}
+                        {heroSection.mass_schedule?.sunday && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
+                            <span><strong>Dimanche:</strong> {heroSection.mass_schedule.sunday}</span>
+                          </div>
+                        )}
+                      </div>
+                    </FactItem>
                   </div>
-                </FactItem>
-              </div>
+                )}
 
-              <div style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: '20px',
-                backgroundColor: 'var(--color-base-200)',
-                width: 'fit-content',
-              }}>
-                <FactItem icon={faHandsPraying} title="Sanctuaire des Saints">
+                {heroSection.sanctuary_hours && (
                   <div style={{
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px',
+                    flexDirection: 'row',
+                    gap: '20px',
+                    backgroundColor: 'var(--color-base-200)',
+                    width: 'fit-content',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
-                      <span><strong>Lundi - Dimanche:</strong> 9h00 - 20h30</span>
-                    </div>
-
+                    <FactItem icon={faHandsPraying} title="Sanctuaire des Saints">
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <FontAwesomeIcon icon={faCalendarDays} style={{ color: 'var(--color-accent)', fontSize: '12px' }} />
+                          <span><strong>Lundi - Dimanche:</strong> {heroSection.sanctuary_hours}</span>
+                        </div>
+                      </div>
+                    </FactItem>
                   </div>
-                </FactItem>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
         </div>
 
@@ -102,24 +131,24 @@ export default function HeroSection() {
             aspectRatio: '16 / 9',
           }}>
           {/* <ShowcaseGallery
-              images={[
-                [
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                ],
-                [
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                  { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                ]
-              ]}
-            /> */}
+            images={[
+              [
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+              ],
+              [
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
+              ]
+            ]}
+          /> */}
         </div>
       </div>
     </div>
