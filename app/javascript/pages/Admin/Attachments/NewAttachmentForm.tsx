@@ -7,6 +7,7 @@ interface FileWithMetadata {
   filename: string;
   title: string;
   description: string;
+  group_ids: number[];
 }
 
 interface FileInputProps {
@@ -174,7 +175,19 @@ function FileInput({
   );
 }
 
-export default function NewAttachmentForm() {
+interface NewAttachmentFormProps {
+  groupId?: number | null;
+  title?: string;
+  onCancel?: () => void;
+  allGroups?: Array<{ id: number; title: string }>;
+}
+
+export default function NewAttachmentForm({
+  groupId = null,
+  title = "Upload New Attachments",
+  onCancel,
+  allGroups = []
+}: NewAttachmentFormProps = {}) {
   const [filesWithMetadata, setFilesWithMetadata] = useState<FileWithMetadata[]>([]);
 
   const setFiles = (files: File[]) => {
@@ -186,14 +199,19 @@ export default function NewAttachmentForm() {
       file,
       filename: file.name,
       title: '',
-      description: ''
+      description: '',
+      group_ids: []
     }));
-    setFilesWithMetadata([...filesWithMetadata, ...newFilesWithMetadata]);
+    setFilesWithMetadata([...newFilesWithMetadata, ...filesWithMetadata]);
   };
 
-  const handleFileChange = (index: number, field: 'filename' | 'title' | 'description', value: string) => {
+  const handleFileChange = (index: number, field: 'filename' | 'title' | 'description' | 'group_ids', value: string | number[]) => {
     const updated = [...filesWithMetadata];
-    updated[index][field] = value;
+    if (field === 'group_ids' && Array.isArray(value)) {
+      updated[index][field] = value;
+    } else if (typeof value === 'string') {
+      updated[index][field as 'filename' | 'title' | 'description'] = value;
+    }
     setFilesWithMetadata(updated);
   };
 
@@ -217,7 +235,17 @@ export default function NewAttachmentForm() {
       formData.append(`attachments[${index}][filename]`, fileData.filename);
       formData.append(`attachments[${index}][title]`, fileData.title);
       formData.append(`attachments[${index}][description]`, fileData.description);
+
+      // Append group_ids for this attachment
+      fileData.group_ids.forEach((groupId) => {
+        formData.append(`attachments[${index}][group_ids][]`, groupId.toString());
+      });
     });
+
+    // Add group_id if provided
+    if (groupId !== null && groupId !== undefined) {
+      formData.append('group_id', groupId.toString());
+    }
 
     setLoading(true);
     router.post(
@@ -226,8 +254,12 @@ export default function NewAttachmentForm() {
       {
         preserveState: true,
         forceFormData: true,
+        only: groupId ? ['previewed_group', 'attachment_groups'] : ['attachments', 'previewed_attachment'],
         onSuccess: () => {
           setFilesWithMetadata([]);
+          if (onCancel) {
+            onCancel();
+          }
         },
         onFinish: () => {
           setLoading(false);
@@ -260,13 +292,22 @@ export default function NewAttachmentForm() {
           alignItems: 'center',
         }}>
           <div>
-            Upload Attachments
+            {title}
           </div>
           <div style={{
             display: 'flex',
             flexDirection: 'row',
             gap: '4px',
           }}>
+            {onCancel && (
+              <button
+                className="btn btn-ghost"
+                onClick={onCancel}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
             <button
               className="btn btn-error"
               onClick={() => setFilesWithMetadata([])}
@@ -292,33 +333,38 @@ export default function NewAttachmentForm() {
           </div>
         </div>
       </div>
+      {filesWithMetadata.length > 0 && (
+        <div style={{
+          flex: 1,
+          backgroundColor: 'white',
+          borderBottom: '1px solid #ddd',
+          padding: '16px',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}>
+          {/* file list here */}
+          {filesWithMetadata.map((fileData, index) => (
+            <FileInputForm
+              key={`file-form-${index}`}
+              file={fileData.file}
+              filename={fileData.filename}
+              title={fileData.title}
+              description={fileData.description}
+              group_ids={fileData.group_ids}
+              allGroups={allGroups}
+              onChange={(field, value) => handleFileChange(index, field, value)}
+              onRemove={() => handleFileRemove(index)}
+            />
+          ))}
+        </div>
+      )}
       <div style={{
-        flex: 1,
         backgroundColor: 'white',
-        borderBottom: '1px solid #ddd',
         padding: '16px',
         overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-      }}>
-        {/* file list here */}
-        {filesWithMetadata.reverse().map((fileData, index) => (
-          <FileInputForm
-            key={`file-form-${index}`}
-            file={fileData.file}
-            filename={fileData.filename}
-            title={fileData.title}
-            description={fileData.description}
-            onChange={(field, value) => handleFileChange(index, field, value)}
-            onRemove={() => handleFileRemove(index)}
-          />
-        ))}
-      </div>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '16px',
-        overflowY: 'auto',
+        flex: filesWithMetadata.length > 0 ? 'none' : 1
       }}>
         <FileInput
           files={files}

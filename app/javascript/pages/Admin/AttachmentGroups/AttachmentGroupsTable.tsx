@@ -29,40 +29,25 @@ interface Header {
   label: string;
   renderCell?: (row: any) => any;
   renderCellActions?: (row: any) => any;
-  headerStyles?: React.CSSProperties;
 }
 
-interface AttachmentsTableProps {
+interface AttachmentGroupsTableProps {
   headers: Header[];
   data: any[];
-  filesCount?: number;
-  byteSize?: string;
+  groupsCount?: number;
   onSortChange: (columnName: string, direction: 'asc' | 'desc' | null) => void;
   highlightedRowId?: number | null;
   searchQuery?: string | null;
-  mode?: 'attachments' | 'group-attachments';
-  groupId?: number;
-  onlyParam?: string;
-  queryParam?: string;
-  title?: string;
-  searchKbd?: string;
 }
 
-export default function AttachmentsTable({
+export default function AttachmentGroupsTable({
   headers,
   data,
-  filesCount,
-  byteSize,
+  groupsCount,
   onSortChange,
   highlightedRowId,
-  searchQuery = '',
-  mode = 'attachments',
-  groupId,
-  onlyParam = 'attachments',
-  queryParam = 'query',
-  title = 'Attachments',
-  searchKbd = '/'
-}: AttachmentsTableProps) {
+  searchQuery = ''
+}: AttachmentGroupsTableProps) {
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
@@ -82,22 +67,22 @@ export default function AttachmentsTable({
 
     const url = new URL(window.location.href);
     if (query) {
-      url.searchParams.set(queryParam, query);
+      url.searchParams.set('query', query);
     } else {
-      url.searchParams.delete(queryParam);
+      url.searchParams.delete('query');
     }
 
     debouncedRouterVisit(url.pathname + url.search, {
       preserveState: true,
-      only: [onlyParam]
+      only: ['attachment_groups']
     });
   };
 
-  // Handle searchKbd key press to focus search input and Escape to blur
+  // Handle "/" key press to focus search input and Escape to blur
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Focus search input on searchKbd key press
-      if (e.key === searchKbd &&
+      // Focus search input on "/" key press
+      if (e.key === '/' &&
         document.activeElement?.tagName !== 'INPUT' &&
         document.activeElement?.tagName !== 'TEXTAREA') {
         e.preventDefault();
@@ -112,7 +97,7 @@ export default function AttachmentsTable({
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [searchKbd]);
+  }, []);
 
   // Handle select all checkbox
   const handleSelectAll = (checked: boolean) => {
@@ -149,50 +134,13 @@ export default function AttachmentsTable({
   const handleBulkDelete = (selectedRows: any[]) => {
     const count = selectedRows.length;
     const message = count === 1
-      ? `Are you sure you want to delete 1 attachment? This action cannot be undone.`
-      : `Are you sure you want to delete ${count} attachments? This action cannot be undone.`;
+      ? `Are you sure you want to delete 1 group? This action cannot be undone.`
+      : `Are you sure you want to delete ${count} groups? This action cannot be undone.`;
 
     if (window.confirm(message)) {
       const ids = selectedRows.map(row => row.id);
-      router.delete('/admin/attachments', {
-        data: { ids: ids },
-        preserveState: true,
-        onFinish: () => {
-          setSelectedRows([]);
-        }
-      });
-    }
-  };
-
-  // Handle bulk associate (for group mode)
-  const handleBulkAssociate = () => {
-    const attachment_ids = selectedRows.map(row => row.id);
-    const count = attachment_ids.length;
-
-    if (window.confirm(`Associate ${count} attachment${count === 1 ? '' : 's'} to this group?`)) {
-      router.post(`/admin/attachments/groups/${groupId}/associate`, {
-        attachment_ids
-      }, {
-        preserveState: true,
-        only: [onlyParam, 'attachment_groups'],
-        onFinish: () => {
-          setSelectedRows([]);
-        }
-      });
-    }
-  };
-
-  // Handle bulk disassociate (for group mode)
-  const handleBulkDisassociate = () => {
-    const attachment_ids = selectedRows.map(row => row.id);
-    const count = attachment_ids.length;
-
-    if (window.confirm(`Disassociate ${count} attachment${count === 1 ? '' : 's'} from this group?`)) {
-      router.post(`/admin/attachments/groups/${groupId}/disassociate`, {
-        attachment_ids
-      }, {
-        preserveState: true,
-        only: [onlyParam, 'attachment_groups'],
+      router.delete('/admin/attachments/groups', {
+        data: { id: ids },
         onFinish: () => {
           setSelectedRows([]);
         }
@@ -215,7 +163,7 @@ export default function AttachmentsTable({
       }}
     >
       <div style={{
-        padding: '4px 8px',
+        padding: '4px',
         width: '100%',
         backgroundColor: 'white',
         borderBottom: '2px solid #ddd',
@@ -229,64 +177,45 @@ export default function AttachmentsTable({
             fontWeight: 'bold',
             marginRight: '8px'
           }}>
-            {title}
+            Groups
           </span>
-          {filesCount !== undefined && (
-            <span className="text-sm" style={{
-              marginRight: '8px'
-            }}>
-              {filesCount} {mode === 'group-attachments' ? 'total' : `file${filesCount === 1 ? '' : 's'}`}
-            </span>
-          )}
-          {mode === 'group-attachments' && (
-            <span className="text-sm" style={{
-              marginRight: '8px',
-              color: '#570df8'
-            }}>
-              {data.filter(a => a.in_group).length} in group
-            </span>
-          )}
-          {byteSize && (
-            <span className="text-sm" style={{
-              marginRight: '8px'
-            }}>
-              {byteSize}
-            </span>
-          )}
-        </div>
-        {mode === 'attachments' && (
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '4px',
+          <span className="text-sm" style={{
+            marginRight: '8px'
           }}>
-            <Link
-              className="link link-primary"
-              style={{ cursor: 'pointer' }}
-              href="/admin/attachments/groups"
-              preserveState={true}
+            {groupsCount} group{groupsCount === 1 ? '' : 's'}
+          </span>
+        </div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '4px',
+        }}>
+          <Link
+            className="link link-primary"
+            style={{ cursor: 'pointer' }}
+            href="/admin/attachments"
+            preserveState={true}
+          >
+            <button
+              className="btn btn-primary"
             >
-              <button
-                className="btn btn-primary"
-              >
-                Groups
-              </button>
-            </Link>
-            <Link
-              className="link link-primary"
-              style={{ cursor: 'pointer' }}
-              href="/admin/attachments"
-              preserveState={true}
-              only={['previewed_attachment']}
+              Attachments
+            </button>
+          </Link>
+          <Link
+            className="link link-primary"
+            style={{ cursor: 'pointer' }}
+            href="/admin/attachments/groups"
+            preserveState={true}
+            only={['previewed_group']}
+          >
+            <button
+              className="btn btn-primary"
             >
-              <button
-                className="btn btn-primary"
-              >
-                New
-              </button>
-            </Link>
-          </div>
-        )}
+              New
+            </button>
+          </Link>
+        </div>
       </div>
       {selectedRows.length === 0 ? (
         <div style={{
@@ -304,63 +233,30 @@ export default function AttachmentsTable({
               value={localSearchQuery}
               onChange={(e) => handleSearch(e.target.value)}
             />
-            <kbd className="kbd kbd-sm">{searchKbd}</kbd>
+            <kbd className="kbd kbd-sm">/</kbd>
           </label>
         </div>
       ) : (
         <div style={{
-          padding: '4px 12px',
+          padding: '12px',
           backgroundColor: '#f0f0f0',
           borderBottom: '1px solid #ddd',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          gap: '4px',
+          gap: '12px',
         }}>
           <span style={{ fontWeight: 'bold', flex: 1 }}>
             {selectedRows.length} item{selectedRows.length === 1 ? '' : 's'} selected
           </span>
-          {mode === 'group-attachments' ? (
-            <>
-              <button
-                className="btn btn-success"
-                onClick={handleBulkAssociate}
-              >
-                Associate to Group
-              </button>
-              <button
-                className="btn btn-error"
-                onClick={handleBulkDisassociate}
-              >
-                Disassociate from Group
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className="btn"
-                onClick={() => {
-                  const urls = selectedRows.map(row => row.url).join('\n');
-                  navigator.clipboard.writeText(urls).then(() => {
-                    alert('URLs copied to clipboard!');
-                  }).catch((err) => {
-                    console.error('Failed to copy URLs:', err);
-                    alert('Failed to copy URLs to clipboard');
-                  });
-                }}
-              >
-                Copy URLs
-              </button>
-              <button
-                className="btn btn-error"
-                onClick={() => handleBulkDelete(selectedRows)}
-              >
-                Delete
-              </button>
-            </>
-          )}
           <button
-            className="btn btn-primary"
+            className="btn btn-sm btn-error"
+            onClick={() => handleBulkDelete(selectedRows)}
+          >
+            Delete
+          </button>
+          <button
+            className="btn btn-sm btn-ghost"
             onClick={() => {
               setSelectedRows([]);
             }}
@@ -409,8 +305,7 @@ export default function AttachmentsTable({
                     padding: '12px',
                     borderRight: '1px solid #ddd',
                     textAlign: 'left',
-                    fontWeight: 'bold',
-                    ...header.headerStyles
+                    fontWeight: 'bold'
                   }}
                 >
                   <button
@@ -478,13 +373,10 @@ export default function AttachmentsTable({
             {data.map((row, index) => {
               const isSelected = selectedRows.some(r => r.id === row.id);
               const isHighlighted = highlightedRowId === row.id;
-              const inGroup = mode === 'group-attachments' && row.in_group;
 
-              // const rowBackgroundColor = isSelected ? '#e0d4fc' : (index % 2 === 0 ? '#fff' : '#fafafa')
               const rowBackgroundColor = (() => {
                 if (isSelected) return '#e0d4fc';
                 if (isHighlighted) return '#fff4e5';
-                if (inGroup) return '#e6f3ff';
                 return index % 2 === 0 ? '#fff' : '#fafafa';
               })()
 
@@ -548,12 +440,7 @@ export default function AttachmentsTable({
 
                   {/* Data cells */}
                   {headers.map((header) => (
-                    <td key={header.name} style={{
-                      padding: '4px 4px',
-                      borderRight: '1px solid #ddd',
-                      display: 'table-cell',
-                      verticalAlign: 'top',
-                    }}>
+                    <td key={header.name} style={{ padding: '12px', borderRight: '1px solid #ddd' }}>
                       {header.renderCell ? header.renderCell(row) : row[header.name]}
                     </td>
                   ))}

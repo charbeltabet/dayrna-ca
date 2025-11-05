@@ -1,24 +1,13 @@
-# README
+### Development
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+1. Run the development server
+```
+bin/dev
+```
+If you want to add `binding.pry` breakpoints in rails:
+```
+rails s
+bin/vite dev
+```
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+2. Daisy UI style [style](https://daisyui.com/theme-generator/#theme=eJyVk9tugzAMQH8FMU3apDXKBUjYW9fS_0iDKWiUoAS0m_bvS6CauLST9hgf-8Q24Sts5BnC51CVvVFl-BQqXWuzsaqEIV5Xp7Jz4c1mBEdpYUMwdujuwDK-y5aQXuDLgWeHJWQjzF72YrtfQqWbDprOJ0SxuyOaJLSmOkvz4dke8y2N12xav7rdgqP5aNCvtSofRHofYIRjHtCUISrY47X0iXQso3wo4zQgjCKC02mZVOrSwC5OebRbof_pGug7I-urC7mwlTAVgxCTgOAERXQ2VtUU2tsSQbIdXYC1auyNRAGNI5TgaLah3g1krbdhtsWMrtmt3pyQCIw4nfrepGmq5jR8vJj7R7RiN31JwBlKxKw_MEYbbxM5kSxZkj-GZRFDJBWjzMi86q17DzWobhBiA-cpKiqo8yvxo36fRm31CTMNovGM_Xom4KhNDj6btO9DIIe2K_15ODW6sv4n9bvKoZB97ebpTA9PYWugAGPdE34NnwtZW_j-Aeu6JA0)

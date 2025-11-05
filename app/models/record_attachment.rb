@@ -1,5 +1,7 @@
 class RecordAttachment < ApplicationRecord
   has_one_attached :file
+  has_many :attachment_group_memberships, dependent: :destroy
+  has_many :attachments_groups, through: :attachment_group_memberships
 
   validates :title, presence: false, length: { maximum: 200 }
   validates :description, length: { maximum: 1000 }
@@ -20,10 +22,6 @@ class RecordAttachment < ApplicationRecord
 
   def self.relation
     RecordAttachmentRelation.new(self)
-  end
-
-  def byte_size
-    file.blob&.byte_size if file.attached?
   end
 
   def content_type
@@ -50,7 +48,40 @@ class RecordAttachment < ApplicationRecord
     end
   end
 
+  def public_url
+    return nil unless file.attached?
+
+    # Get the public URL from the storage service
+    service = file.blob.service
+
+    # For S3-compatible services (like Cloudflare R2), construct the public URL
+    if service.is_a?(ActiveStorage::Service::S3Service)
+      key = file.blob.key
+
+      # Try to get public URL from credentials, otherwise construct from endpoint
+      base_url = Rails.application.credentials.dig(:cloudflare, :public_url)
+
+      if base_url.blank?
+        # Extract base URL from endpoint (remove API path if present)
+        endpoint = Rails.application.credentials.dig(:cloudflare, :public_endpoint)
+        # For R2, the public URL format is typically: https://pub-{hash}.r2.dev
+        # or the endpoint with the bucket name
+        # Since we don't have the public URL configured, we'll use the endpoint
+        base_url = endpoint&.gsub(/\/$/, "") # Remove trailing slash
+      end
+
+      "#{base_url}/#{key}"
+    else
+      # Fallback for other storage types (Disk, etc.)
+      file.url
+    end
+  end
+
   private
+
+  def byte_size
+    file.blob&.byte_size if file.attached?
+  end
 
   def acceptable_file
     return unless file.attached?

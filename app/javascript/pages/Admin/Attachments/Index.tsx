@@ -14,6 +14,7 @@ export function handleDelete(id: number, filename: string) {
 export default function AdminAttachmentsIndex({
   attachments,
   'previewed_attachment': previewedAttachment,
+  'all_groups': allGroups,
 }: any) {
   const handleSortChange = (columnName: string, direction: 'asc' | 'desc' | null) => {
     console.log('Sort changed:', columnName, direction);
@@ -25,20 +26,53 @@ export default function AdminAttachmentsIndex({
       label: "Groups",
       renderCell: (row: any) => (
         <div style={{
-          width: '150px',
+          minWidth: '50px',
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
           gap: '4px'
         }}>
-          <div style={{
-            backgroundColor: 'purple',
-            padding: '4px',
-            width: 'fit-content',
-            color: 'white'
-          }}>
-            group name
-          </div>
+          {row.groups && row.groups.length > 0 ? (
+            row.groups.map((group: any) => (
+              <Link
+                key={`${row.id}-group-${group.id}`}
+                className="link link-primary"
+                style={{
+                  backgroundColor: '#570df8',
+                  padding: '4px 8px',
+                  width: 'fit-content',
+                  color: 'white',
+                  borderRadius: '4px',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+                href={`/admin/attachments/groups/${group.id}`}
+                preserveState={true}
+              >
+                {group.name}
+              </Link>
+            ))
+          ) : (
+            <Link
+              key={`${row.id}-new-group`}
+              href={`/admin/attachments/${row.id}`}
+              className="link link-primary"
+            >
+              Add to group
+            </Link>
+          )}
         </div >
+      )
+    },
+    {
+      name: "attachment_preview",
+      label: "Preview",
+      renderCell: (row: any) => (
+        <img
+          src={row.url}
+          alt={row.filename}
+          style={{ maxWidth: '100%', maxHeight: '100%' }}
+        />
       )
     },
     {
@@ -46,11 +80,12 @@ export default function AdminAttachmentsIndex({
       label: "Name",
       renderCell: (row: any) => (
         <div style={{
-          minWidth: '100px',
-          maxWidth: '200px',
-          overflow: 'hidden',
+          maxHeight: '60px',
+          minWidth: '200px',
+          overflowY: 'auto',
           whiteSpace: 'normal',
           wordBreak: 'break-word',
+          paddingRight: '4px',
         }}>
           <Link
             className="link link-primary"
@@ -83,7 +118,7 @@ export default function AdminAttachmentsIndex({
       label: "Title",
       renderCell: (row: any) => (
         <div style={{
-          width: '75px',
+          width: '200px',
           overflow: 'hidden',
           whiteSpace: 'normal',
           wordBreak: 'break-word',
@@ -97,7 +132,7 @@ export default function AdminAttachmentsIndex({
       label: "Description",
       renderCell: (row: any) => (
         <div style={{
-          width: '75px',
+          width: '200px',
           overflow: 'hidden',
           whiteSpace: 'normal',
           wordBreak: 'break-word',
@@ -111,15 +146,18 @@ export default function AdminAttachmentsIndex({
       name: "updated_at",
       label: "Updated",
       renderCellActions: (row: any) => (
-        <div>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+        }}>
           <div style={{
             display: 'flex',
             flexDirection: 'row',
-            gap: '8px',
+            gap: '4px',
           }}>
             <Link
-              className="link link-info"
-              style={{ cursor: 'pointer' }}
+              className="btn btn-sm btn-info"
               href={`/admin/attachments/${row.id}`}
               preserveState={true}
               only={['previewed_attachment']}
@@ -127,15 +165,14 @@ export default function AdminAttachmentsIndex({
               Edit
             </Link>
             <a
-              className="link"
-              style={{ color: 'red', cursor: 'pointer' }}
+              className="btn btn-sm btn-error"
               onClick={() => handleDelete(row.id, row.filename)}
             >
               Delete
             </a>
           </div>
           <a
-            className="link link-primary"
+            className="btn btn-sm btn-primary"
             style={{ cursor: 'pointer' }}
             href={row.url}
             target="_blank"
@@ -178,10 +215,11 @@ export default function AdminAttachmentsIndex({
           {previewedAttachment ? (
             <AttachmentPreview
               attachmentRow={previewedAttachment}
+              allGroups={allGroups || []}
               key={previewedAttachment.id}
             />
           ) : (
-            <NewAttachmentForm />
+            <NewAttachmentForm allGroups={allGroups || []} />
           )}
         </div>
       </div>

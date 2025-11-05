@@ -1,40 +1,25 @@
-import { Link, useForm } from "@inertiajs/react";
-import { FormEventHandler, useState } from "react";
+import { Form } from "@inertiajs/react";
+import { useState, useRef } from "react";
 import { handleDelete } from "./Index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLink } from "@fortawesome/free-solid-svg-icons";
+import AttachmentGroupsSelect from "./AttachmentGroupsSelect";
 
 interface AttachmentPreviewProps {
   attachmentRow: any;
+  allGroups: Array<{ id: number; title: string }>;
 }
 
 export default function AttachmentPreview({
   attachmentRow,
+  allGroups,
 }: AttachmentPreviewProps) {
+  const formRef = useRef<HTMLFormElement | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
-
-  const { data, setData, patch, processing } = useForm<{
-    filename: string;
-    title: string;
-    description: string;
-    file: File | null;
-  }>({
-    filename: attachmentRow.filename || '',
-    title: attachmentRow.title || '',
-    description: attachmentRow.description || '',
-    file: null,
-  });
-
-  const handleSubmit: FormEventHandler = (e) => {
-    e.preventDefault();
-    patch(`/admin/attachments/${attachmentRow.id}`, {
-      forceFormData: true,
-      onSuccess: (page) => {
-        const updatedAttachment = page.props.previewed_attachment as any;
-        setData(updatedAttachment);
-      }
-    });
-  };
+  const [groupIds, setGroupIds] = useState<number[]>(
+    attachmentRow.groups?.map((g: any) => g.id) || []
+  );
+  const [processing, setProcessing] = useState(false);
 
   const handleCopyLink = async () => {
     try {
@@ -45,7 +30,6 @@ export default function AttachmentPreview({
       console.error('Failed to copy:', err);
     }
   };
-  console.log('attachmentRow.url', attachmentRow.url)
 
   return (
     <div style={{
@@ -100,51 +84,90 @@ export default function AttachmentPreview({
             >
               Delete
             </button>
+            <button
+              type="button"
+              onClick={() => formRef.current?.submit()}
+              className="btn btn-success"
+              disabled={processing}
+            >
+              {processing ? 'Saving...' : 'Save'}
+            </button>
           </div>
         </div>
       </div>
-      <div style={{
-        flex: 1,
-        backgroundColor: 'white',
-        borderBottom: '1px solid #ddd',
-        padding: '16px',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-      }}>
-        <form onSubmit={handleSubmit} onKeyDown={(e) => {
+      <Form
+        ref={formRef}
+        action={`/admin/attachments/${attachmentRow.id}`}
+        method="patch"
+        transform={(data) => {
+          console.log('Form data before transform:', data);
+          const afterTransform = {
+            ...data,
+            // Ensure group_ids is always present, defaulting to empty array
+            'group_ids': data['group_ids'] || ['']
+          }
+          console.log('Form data after transform:', afterTransform);
+          return afterTransform;
+        }}
+        onKeyDown={(e) => {
           if (e.shiftKey && e.key === 'Enter') {
             e.preventDefault();
-            handleSubmit(e);
+            e.currentTarget.requestSubmit();
           }
-        }} style={{
+        }}
+        onStart={() => setProcessing(true)}
+        onFinish={() => setProcessing(false)}
+        onSuccess={(page) => {
+          const updatedAttachment = page.props.previewed_attachment as any;
+          setGroupIds(updatedAttachment.groups?.map((g: any) => g.id) || []);
+        }}
+        style={{
+          flex: 1,
+          backgroundColor: 'white',
+          borderBottom: '1px solid #ddd',
+          padding: '16px',
+          overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
+          gap: '8px'
+        }}
+      >
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(200px, 1fr) minmax(200px, 1fr)',
           gap: '12px'
         }}>
-          <div>
-            <label className="label">
-              <span className="label-text">Replace File</span>
-            </label>
-            <input
-              type="file"
-              className="file-input file-input-bordered w-full"
-              onChange={(e) => setData('file', e.target.files?.[0] || null)}
-            />
-          </div>
-
           <div>
             <label className="label">
               <span className="label-text">Filename</span>
             </label>
             <input
               type="text"
+              name="filename"
               className="input input-bordered w-full"
-              value={data.filename}
-              onChange={(e) => setData('filename', e.target.value)}
+              defaultValue={attachmentRow.filename || ''}
             />
           </div>
+
+          <div>
+            <label className="label">
+              <span className="label-text">Replace File</span>
+            </label>
+            <input
+              type="file"
+              name="file"
+              className="file-input file-input-bordered w-full"
+            />
+          </div>
+
+          <AttachmentGroupsSelect
+            selectedGroupIds={groupIds}
+            groups={allGroups}
+            selectedGroups={attachmentRow.groups || []}
+            onChange={setGroupIds}
+            disabled={processing}
+            name="group_ids"
+          />
 
           <div>
             <label className="label">
@@ -152,35 +175,39 @@ export default function AttachmentPreview({
             </label>
             <input
               type="text"
+              name="title"
               className="input input-bordered w-full"
-              value={data.title}
-              onChange={(e) => setData('title', e.target.value)}
+              defaultValue={attachmentRow.title || ''}
             />
           </div>
 
-          <div>
+          <div style={{
+            gridColumn: 'span 2'
+          }}>
             <label className="label">
               <span className="label-text">Description</span>
             </label>
             <textarea
+              name="description"
               className="textarea textarea-bordered w-full"
               rows={4}
-              value={data.description}
-              onChange={(e) => setData('description', e.target.value)}
+              defaultValue={attachmentRow.description || ''}
             />
           </div>
-        </form>
-      </div>
+        </div>
+      </Form>
       <div style={{
         backgroundColor: 'white',
         padding: '3px 12px',
-        borderBottom: '1px solid #ddd',
         display: 'flex',
         justifyContent: 'center',
+        borderBottom: '1px solid #ddd'
       }}>
         <button
+          onClick={() => formRef.current?.submit()}
+          type="submit"
+          form="attachment-form"
           className="btn btn-success"
-          onClick={handleSubmit}
           disabled={processing}
         >
           {processing ? 'Saving...' : 'Save'}

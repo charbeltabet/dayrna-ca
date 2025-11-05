@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_24_202545) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_04_212754) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,11 +42,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_202545) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "attachment_group_memberships", force: :cascade do |t|
+    t.bigint "record_attachment_id", null: false
+    t.bigint "attachments_group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attachments_group_id"], name: "index_attachment_group_memberships_on_attachments_group_id"
+    t.index ["record_attachment_id", "attachments_group_id"], name: "index_attachment_group_memberships_on_attachment_and_group", unique: true
+    t.index ["record_attachment_id"], name: "index_attachment_group_memberships_on_record_attachment_id"
+  end
+
   create_table "attachments_groups", force: :cascade do |t|
     t.string "title", null: false
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "home_page_data", force: :cascade do |t|
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["data"], name: "index_home_page_data_on_data", using: :gin
   end
 
   create_table "record_attachments", force: :cascade do |t|
@@ -56,11 +73,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_24_202545) do
     t.jsonb "metadata", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "attachments_groups_id"
-    t.index ["attachments_groups_id"], name: "index_record_attachments_on_attachments_groups_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "record_attachments", "attachments_groups", column: "attachments_groups_id"
+  add_foreign_key "attachment_group_memberships", "attachments_groups"
+  add_foreign_key "attachment_group_memberships", "record_attachments"
 end

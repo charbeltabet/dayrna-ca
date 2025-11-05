@@ -2,6 +2,9 @@
 
 class HomeController < ApplicationController
   def index
-    render inertia: "Home", props: {}
+    home_page_data = HomePageData.instance
+    render inertia: "Home/index", props: {
+      homePageData: home_page_data.data
+    }
   end
 end

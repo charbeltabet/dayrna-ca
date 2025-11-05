@@ -1,9 +1,13 @@
+import AttachmentGroupsSelect from "./AttachmentGroupsSelect";
+
 interface FileInputFormProps {
   file: File;
   filename: string;
   title: string;
   description: string;
-  onChange: (field: 'filename' | 'title' | 'description', value: string) => void;
+  group_ids: number[];
+  allGroups: Array<{ id: number; title: string }>;
+  onChange: (field: 'filename' | 'title' | 'description' | 'group_ids', value: string | number[]) => void;
   onRemove: () => void;
 }
 
@@ -12,6 +16,8 @@ export default function FileInputForm({
   filename,
   title,
   description,
+  group_ids,
+  allGroups,
   onChange,
   onRemove,
 }: FileInputFormProps) {
@@ -72,6 +78,12 @@ export default function FileInputForm({
               className="input input-bordered input-sm w-full"
             />
           </div>
+
+          <AttachmentGroupsSelect
+            selectedGroupIds={group_ids}
+            groups={allGroups}
+            onChange={(groupIds) => onChange('group_ids', groupIds)}
+          />
         </div>
       </div>
     </div>
