@@ -1,6 +1,8 @@
 import AnnouncementCard from "./AnnouncementCard";
 
-export default function TimeSection() {
+export default function TimeSection({
+  announcements
+}: any) {
   return (
     <div style={{
       display: 'flex',
@@ -26,12 +28,12 @@ export default function TimeSection() {
           height: '400px',
           overflowY: 'auto',
         }}>
-          <AnnouncementCard />
-          <AnnouncementCard />
-          <AnnouncementCard />
-          <AnnouncementCard />
-          <AnnouncementCard />
-          <AnnouncementCard />
+          {announcements.map((announcement: any) => (
+            <AnnouncementCard
+              key={`announcement-card-${announcement.id}`}
+              announcement={announcement}
+            />
+          ))}
         </div>
       </div>
       <div style={{

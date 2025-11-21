@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-class HomeController < ApplicationController
+class AdminHomeController < ApplicationController
   def index
     home_page_data = HomePageData.instance
     data = home_page_data.data.deep_dup
@@ -18,25 +16,15 @@ class HomeController < ApplicationController
               title: attachment.title,
               description: attachment.description
             }
+            # Also populate selectedImage for the form
+            slide["selectedImage"] = {
+              value: attachment.id,
+              label: attachment.filename.to_s,
+              thumbnail_url: attachment.public_url
+            }
           end
         end
         slide
-      end
-    end
-
-    # Enrich hero section with gallery images from attachment group
-    if data["hero_section"].present? && data["hero_section"]["gallery_group_id"].present?
-      group = AttachmentsGroup.find_by(id: data["hero_section"]["gallery_group_id"])
-      if group
-        data["hero_section"]["gallery_images"] = group.record_attachments.map do |attachment|
-          {
-            id: attachment.id,
-            filename: attachment.filename.to_s,
-            public_url: attachment.public_url,
-            title: attachment.title,
-            description: attachment.description
-          }
-        end
       end
     end
 
@@ -54,8 +42,24 @@ class HomeController < ApplicationController
       )
     data["announcements"] = announcements
 
-    render inertia: "Home/index", props: {
-      homePageData: data
+    render inertia: "Admin/Homepage/Index", props: {
+      home_page_data: data
     }
+  end
+
+  def update
+    home_page_data = HomePageData.instance
+
+    if home_page_data.update(data: homepage_params)
+      redirect_to admin_home_path, notice: "Homepage data updated successfully."
+    else
+      redirect_to admin_home_path, alert: "Failed to update homepage data."
+    end
+  end
+
+  private
+
+  def homepage_params
+    params.require(:data).permit!
   end
 end

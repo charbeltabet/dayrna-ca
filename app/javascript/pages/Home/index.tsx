@@ -36,7 +36,9 @@ export default function Home({ homePageData }: HomeProps) {
         >
           <ScriptureSlideShow slides={homePageData?.scripture_slides} />
           <HeroSection />
-          <TimeSection />
+          <TimeSection
+            announcements={homePageData?.announcements}
+          />
           <NavigationSections />
           <SouvenirSection />
           <MediaSection />

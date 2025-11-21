@@ -20,6 +20,15 @@ class RecordAttachment < ApplicationRecord
     end
   end
 
+  class << self
+    def search(query)
+      joins(file_attachment: :blob).where(
+        "record_attachments.title ILIKE :q OR active_storage_blobs.filename ILIKE :q OR record_attachments.description ILIKE :q",
+        q: "%#{query}%"
+      )
+    end
+  end
+
   def self.relation
     RecordAttachmentRelation.new(self)
   end
@@ -43,9 +52,9 @@ class RecordAttachment < ApplicationRecord
   def thumbnail_url(variant: { resize_to_limit: [ 300, 300 ] })
     return nil unless image? && file.attached?
 
-    Rails.cache.fetch(thumbnail_cache_key(variant), expires_in: 2.hours) do
-      file.variant(variant).processed.url(expires_in: 2.hours)
-    end
+    # Rails.cache.fetch(thumbnail_cache_key(variant), expires_in: 2.hours) do
+    file.variant(variant).processed.url(expires_in: 2.hours)
+    # end
   end
 
   def public_url

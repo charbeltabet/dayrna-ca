@@ -1,4 +1,4 @@
-import { faHouse, faLayerGroup, faPhotoFilm, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faLayerGroup, faPhotoFilm, faScroll, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "@inertiajs/react";
 
@@ -56,6 +56,18 @@ export default function AdminNavigationBar() {
               >
                 <FontAwesomeIcon icon={faLayerGroup} />
                 Attachment Groups
+              </Link>
+            </li>
+          </ul>
+          <ul className="menu bg-base-300 lg:menu-horizontal">
+            <li
+              className={/^\/admin\/announcements(\/.*)?$/.test(path) ? "menu-active" : ""}
+            >
+              <Link
+                href="/admin/announcements"
+              >
+                <FontAwesomeIcon icon={faScroll} />
+                Announcements
               </Link>
             </li>
           </ul>

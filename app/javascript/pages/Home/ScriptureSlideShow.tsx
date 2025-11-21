@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react"
 
 interface ScriptureSlide {
-  imageUrl: string;
+  record_attachment_id: number | null;
   scriptureText: string;
   reference: string;
+  attachment?: {
+    id: number;
+    filename: string;
+    public_url: string;
+    title: string;
+    description: string;
+  };
 }
 
 interface ScriptureSlideShowProps {
@@ -44,18 +51,25 @@ export default function ScriptureSlideShow({ slides }: ScriptureSlideShowProps) 
     }
   }
 
+  const currentSlide = data[currentIndex];
+  const imageUrl = currentSlide?.attachment?.public_url;
+
   return (
     <div
       style={{
         height,
-        backgroundImage: `url(${data[currentIndex].imageUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        ...(imageUrl ? {
+          backgroundImage: `url(${imageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          animation: 'panBackground 3s ease-in-out infinite alternate',
+        } : {
+          backgroundColor: 'black',
+        }),
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        animation: 'panBackground 3s ease-in-out infinite alternate',
       }}>
       <div style={{
         position: 'absolute',
@@ -80,13 +94,13 @@ export default function ScriptureSlideShow({ slides }: ScriptureSlideShowProps) 
             marginBottom: '1rem',
             lineHeight: '1.6',
           }}>
-          "{data[currentIndex].scriptureText}"
+          "{currentSlide.scriptureText}"
         </h1>
         <p style={{
           fontSize: '1.1rem',
           fontWeight: 'bold',
         }}>
-          — {data[currentIndex].reference}
+          — {currentSlide.reference}
         </p>
       </div>
 

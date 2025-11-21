@@ -3,10 +3,14 @@ import { faHouse, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HomeContext from "./Home/context";
 import { useContext } from "react";
+import { Link, usePage } from "@inertiajs/react";
 
 export default function TopRibon() {
   const { homePageData } = useContext(HomeContext);
   const topRibbon = homePageData?.top_ribbon || {};
+
+  const currentUrl = usePage().url;
+  const currentAdminUrl = "/admin/" + currentUrl.substring(1);
 
   return (
     <div style={{
@@ -79,7 +83,7 @@ export default function TopRibon() {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
         {topRibbon.youtube_url && (
           <a href={topRibbon.youtube_url} target="_blank" rel="noopener noreferrer">
             <FontAwesomeIcon icon={faYoutube} />
@@ -102,7 +106,12 @@ export default function TopRibon() {
         justifyContent: 'flex-end',
         alignItems: 'center',
       }}>
-
+        <Link
+          href={currentAdminUrl}
+          className="underline"
+        >
+          Admin
+        </Link>
       </div>
 
     </div>

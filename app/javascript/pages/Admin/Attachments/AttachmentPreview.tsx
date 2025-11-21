@@ -96,7 +96,7 @@ export default function AttachmentPreview({
         </div>
       </div>
       <Form
-        ref={formRef}
+        ref={formRef as any}
         action={`/admin/attachments/${attachmentRow.id}`}
         method="patch"
         transform={(data) => {

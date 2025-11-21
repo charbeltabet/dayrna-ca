@@ -13,3 +13,7 @@
     --radius-field: 0rem;
     --color-background: #EEDDB8;
 }
+
+select {
+    cursor: pointer;
+}
