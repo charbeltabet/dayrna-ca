@@ -3,6 +3,7 @@ import MenuItemEditor from './MenuItemEditor';
 import { useScriptureSlideEditor, ScriptureSlide } from './useScriptureSlideEditor';
 import ScriptureSlideEditor from './ScriptureSlideEditor';
 import { CollapsibleSection } from './CollapsibleSection';
+import AttachmentGroupSelector from './AttachmentGroupSelector';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -347,7 +348,7 @@ export default function HomeForm({
                 />
               </div>
 
-              <div style={{ marginTop: '8px' }}>
+              <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>
                   Mass Schedule
                 </label>
@@ -409,7 +410,7 @@ export default function HomeForm({
                 </div>
               </div>
 
-              <div style={{ marginTop: '8px' }}>
+              <div>
                 <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
                   Sanctuary Hours
                 </label>
@@ -430,6 +431,24 @@ export default function HomeForm({
                   }}
                 />
               </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
+                  Gallery Images
+                </label>
+                <AttachmentGroupSelector
+                  value={homePageData?.hero_section?.gallery_group}
+                  onChange={(value) => setHomePageData({
+                    ...homePageData,
+                    hero_section: {
+                      ...homePageData?.hero_section,
+                      gallery_group: value,
+                      gallery_group_id: value?.value
+                    }
+                  })}
+                />
+              </div>
+
             </div>
           </CollapsibleSection>
 

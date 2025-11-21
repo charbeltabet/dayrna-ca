@@ -450,6 +450,41 @@ class AttachmentsController < ApplicationController
     redirect_to "/admin/attachments/groups/#{params[:id]}", flash: { error: "Failed to disassociate attachment(s): #{e.message}" }
   end
 
+  def search
+    records = RecordAttachment.search(params[:query].to_s).limit(20)
+    data = records.map do |record|
+      {
+        value: record.id,
+        label: record.filename.to_s,
+        thumbnail_url: record.public_url
+      }
+    end
+    render json: data
+  end
+
+  def search_groups
+    query = params[:query].to_s.strip
+    records = if query.present?
+      AttachmentsGroup.where(
+        "title LIKE ? OR description LIKE ?",
+        "%#{query}%",
+        "%#{query}%"
+      ).order(:title).limit(20)
+    else
+      AttachmentsGroup.order(:title).limit(20)
+    end
+
+    data = records.map do |group|
+      {
+        value: group.id,
+        label: group.title,
+        description: group.description,
+        attachment_count: group.record_attachments.count
+      }
+    end
+    render json: data
+  end
+
   private
 
   def sanitize_filename(filename)

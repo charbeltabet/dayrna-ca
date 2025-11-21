@@ -9,6 +9,9 @@ export default function HeroSection() {
   const { homePageData } = useContext(HomeContext);
   const heroSection = homePageData?.hero_section || {};
 
+  // Extract image URLs from gallery_images
+  const galleryImageUrls = heroSection.gallery_images?.map((img: any) => img.public_url) || [];
+
   return (
     <div className="hero bg-base-300">
       <div className="hero-content flex-col lg:flex-row w-full justify-between p-0 py-6" style={{
@@ -130,25 +133,7 @@ export default function HeroSection() {
             maxWidth: '650px',
             aspectRatio: '16 / 9',
           }}>
-          {/* <ShowcaseGallery
-            images={[
-              [
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-              ],
-              [
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-                { url: `https://picsum.photos/seed/${Math.random()}/200/300` },
-              ]
-            ]}
-          /> */}
+          <ShowcaseGallery imageUrls={galleryImageUrls} />
         </div>
       </div>
     </div>

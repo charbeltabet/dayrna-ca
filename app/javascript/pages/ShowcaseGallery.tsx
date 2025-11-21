@@ -1,150 +1,192 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
 interface ShowCaseImageProps {
-  percentHeight: number
-  minHeightPx: number
-  url?: string
-  lookaheadSeconds?: number
+  height: number; // Using fixed pixel height
+  url?: string;
 }
 
-function ShowCaseImage({
-  percentHeight = 100,
-  minHeightPx,
+const ShowCaseImage: React.FC<ShowCaseImageProps> = ({
+  height,
   url,
-  lookaheadSeconds = 2,
-}: ShowCaseImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const imageRef = useRef<HTMLDivElement>(null);
-
-  // Generate a stable random seed for this component instance
+}) => {
   const imageSeed = useMemo(() => Math.floor(Math.random() * 1000), []);
   const imageUrl = url || `https://picsum.photos/seed/${imageSeed}/800/450`;
 
-  useEffect(() => {
-    const element = imageRef.current;
-    if (!element) return;
-
-    // Calculate the scroll speed to determine lookahead distance
-    // Assuming 10% scroll per second, we need to calculate viewport-based threshold
-    const scrollSpeed = 0.025; // This should match AutoScrollColumn's scrollSpeed
-
-    // Calculate how far ahead to load based on lookahead time
-    // For 2 seconds lookahead at 10% scroll speed, we need about 20% viewport margin
-    const lookaheadPercentage = scrollSpeed * 100 * lookaheadSeconds;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !isLoaded) {
-            setIsLoaded(true);
-          }
-        });
-      },
-      {
-        // Load images when they're within lookahead distance of viewport
-        rootMargin: `${lookaheadPercentage}% 0px ${lookaheadPercentage}% 0px`,
-        threshold: 0,
-      }
-    );
-
-    observer.observe(element);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [isLoaded, lookaheadSeconds]);
-
   return (
     <div
-      ref={imageRef}
       style={{
-        height: `${percentHeight}%`,
-        minHeight: `${minHeightPx}px`,
+        height: `${height}px`, // Fixed pixel height
         width: '100%',
-        backgroundImage: isLoaded ? `url("${imageUrl}")` : 'none',
-        backgroundColor: isLoaded ? 'transparent' : '#e0e0e0',
+        backgroundImage: `url("${imageUrl}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         marginBottom: '5px',
-        transition: 'background-color 0.3s ease',
       }}
     />
-  )
-}
+  );
+};
 
 interface AutoScrollColumnProps {
   scrollDirection: 'down' | 'up';
   children: React.ReactNode;
+  scrollSpeed?: number; // pixels per second
 }
 
-function AutoScrollColumn({ scrollDirection, children }: AutoScrollColumnProps) {
+const AutoScrollColumn: React.FC<AutoScrollColumnProps> = ({
+  scrollDirection,
+  children,
+  scrollSpeed = 30 // pixels per second
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number>(0);
+  const isPausedRef = useRef<boolean>(false);
 
   useEffect(() => {
     const scrollElement = scrollRef.current;
-    if (!scrollElement) return;
+    const contentElement = contentRef.current;
+    if (!scrollElement || !contentElement) return;
 
-    // Set initial scroll position based on direction
+    // Clone content for seamless infinite scroll
+    const clonedContent = contentElement.cloneNode(true) as HTMLDivElement;
+    clonedContent.setAttribute('aria-hidden', 'true'); // For accessibility
+    scrollElement.appendChild(clonedContent);
+
+    // Set initial position
     if (scrollDirection === 'up') {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
+      scrollElement.scrollTop = contentElement.offsetHeight;
+    } else {
+      scrollElement.scrollTop = 0;
     }
 
-    const scrollSpeed = 0.025; // 10% per second
-    let animationFrameId: number;
-    let lastTimestamp = Date.now();
+    const animate = (currentTime: number) => {
+      if (!isPausedRef.current) {
+        if (lastTimeRef.current === 0) {
+          lastTimeRef.current = currentTime;
+        }
 
-    const scroll = () => {
-      const now = Date.now();
-      const deltaTime = (now - lastTimestamp) / 1000; // Convert to seconds
-      lastTimestamp = now;
+        const deltaTime = (currentTime - lastTimeRef.current) / 1000; // Convert to seconds
+        lastTimeRef.current = currentTime;
 
-      if (scrollElement) {
-        const maxScroll = scrollElement.scrollHeight - scrollElement.clientHeight;
-        const scrollAmount = maxScroll * scrollSpeed * deltaTime;
+        if (scrollElement && contentElement) {
+          const scrollIncrement = scrollSpeed * deltaTime;
+          const contentHeight = contentElement.offsetHeight;
 
-        if (scrollDirection === 'down') {
-          scrollElement.scrollTop += scrollAmount;
+          if (scrollDirection === 'down') {
+            scrollElement.scrollTop += scrollIncrement;
 
-          // Reset to top when reaching bottom
-          if (scrollElement.scrollTop >= maxScroll) {
-            scrollElement.scrollTop = 0;
-          }
-        } else {
-          scrollElement.scrollTop -= scrollAmount;
+            // Reset to start when we've scrolled one full content height
+            if (scrollElement.scrollTop >= contentHeight) {
+              scrollElement.scrollTop -= contentHeight;
+            }
+          } else {
+            scrollElement.scrollTop -= scrollIncrement;
 
-          // Reset to bottom when reaching top
-          if (scrollElement.scrollTop <= 0) {
-            scrollElement.scrollTop = maxScroll;
+            // Reset to end when we've scrolled to the top
+            if (scrollElement.scrollTop <= 0) {
+              scrollElement.scrollTop += contentHeight;
+            }
           }
         }
+      } else {
+        // Keep updating lastTimeRef even when paused to avoid jumps
+        lastTimeRef.current = currentTime;
       }
 
-      animationFrameId = requestAnimationFrame(scroll);
+      animationRef.current = requestAnimationFrame(animate);
     };
 
-    animationFrameId = requestAnimationFrame(scroll);
+    // Start animation
+    animationRef.current = requestAnimationFrame(animate);
 
+    // Cleanup
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      // Remove cloned content
+      if (scrollElement && clonedContent.parentNode === scrollElement) {
+        scrollElement.removeChild(clonedContent);
+      }
     };
-  }, [scrollDirection]);
+  }, [scrollDirection, scrollSpeed, children]);
+
+  // Pause on hover for better UX
+  const handleMouseEnter = useCallback(() => {
+    isPausedRef.current = true;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    isPausedRef.current = false;
+    lastTimeRef.current = 0; // Reset to avoid time jump
+  }, []);
 
   return (
     <div
       ref={scrollRef}
-      className="hidden-scrollbar"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       style={{
         flex: 1,
-        gap: '10px',
-        overflowY: 'scroll',
+        overflowY: 'hidden', // Hide scrollbar
+        position: 'relative',
+        cursor: 'pointer', // Indicate interactivity
       }}
     >
-      {children}
+      <div ref={contentRef}>
+        {children}
+      </div>
     </div>
   );
+};
+
+interface ShowcaseGalleryProps {
+  imageUrls?: string[];
+  scrollSpeed?: number;
+  baseHeight?: number; // Base height for calculating variations
 }
 
-export default function ShowcaseGallery() {
+const ShowcaseGallery: React.FC<ShowcaseGalleryProps> = ({
+  imageUrls = [],
+  scrollSpeed = 30,
+  baseHeight = 150 // Base height in pixels
+}) => {
+  // Define height multipliers for visual variety
+  // These will be multiplied by baseHeight
+  const heightMultipliers = [0.8, 2.0, 1.5, 1.8, 1.2, 2.2, 1.3, 1.6];
+
+  // Convert multipliers to actual pixel heights
+  const heightsInPixels = useMemo(() =>
+    heightMultipliers.map(multiplier => Math.round(baseHeight * multiplier)),
+    [baseHeight]
+  );
+
+  // Generate placeholder images if none provided
+  const images = useMemo(() => {
+    if (imageUrls.length > 0) {
+      return imageUrls;
+    }
+    // Generate 16 placeholder images for demo
+    return Array.from({ length: 16 }, (_, i) =>
+      `https://picsum.photos/seed/${i}/800/450`
+    );
+  }, [imageUrls]);
+
+  // Split images into two columns
+  const midpoint = Math.ceil(images.length / 2);
+  const column1Images = images.slice(0, midpoint);
+  const column2Images = images.slice(midpoint);
+
+  // Ensure we have enough content for smooth scrolling
+  const minImages = 4;
+  const finalColumn1 = column1Images.length < minImages
+    ? [...column1Images, ...column1Images, ...column1Images]
+    : column1Images;
+  const finalColumn2 = column2Images.length < minImages
+    ? [...column2Images, ...column2Images, ...column2Images]
+    : column2Images;
+
   return (
     <div
       style={{
@@ -152,46 +194,30 @@ export default function ShowcaseGallery() {
         flexDirection: 'row',
         height: '100%',
         width: '100%',
-        overflowY: 'hidden',
+        overflow: 'hidden',
         gap: '5px',
       }}
     >
-      <AutoScrollColumn scrollDirection="down">
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
+      <AutoScrollColumn scrollDirection="down" scrollSpeed={scrollSpeed}>
+        {finalColumn1.map((url, index) => (
+          <ShowCaseImage
+            key={`col1-${index}`}
+            height={heightsInPixels[index % heightsInPixels.length]}
+            url={url}
+          />
+        ))}
       </AutoScrollColumn>
-      <AutoScrollColumn scrollDirection="up">
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={80} minHeightPx={100} />
-        <ShowCaseImage percentHeight={50} minHeightPx={100} />
-        <ShowCaseImage percentHeight={70} minHeightPx={100} />
+      <AutoScrollColumn scrollDirection="up" scrollSpeed={scrollSpeed}>
+        {finalColumn2.map((url, index) => (
+          <ShowCaseImage
+            key={`col2-${index}`}
+            height={heightsInPixels[(index + 2) % heightsInPixels.length]} // Offset for variety
+            url={url}
+          />
+        ))}
       </AutoScrollColumn>
     </div>
-  )
-}
+  );
+};
+
+export default ShowcaseGallery;

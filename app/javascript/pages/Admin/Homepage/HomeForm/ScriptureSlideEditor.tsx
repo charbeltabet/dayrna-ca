@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ScriptureSlide } from './useScriptureSlideEditor';
+import ImageSelector from './ImageSelector';
 
 interface ScriptureSlideEditorProps {
   slides: ScriptureSlide[];
@@ -24,7 +25,7 @@ function ScriptureSlideRow({
   isFirst: boolean;
   isLast: boolean;
 }) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div
@@ -33,7 +34,6 @@ function ScriptureSlideRow({
         border: '1px solid var(--color-base-300)',
         padding: '12px',
         marginBottom: '8px',
-        borderRadius: '4px'
       }}
     >
       <div style={{ display: 'flex', gap: '8px', marginBottom: isExpanded ? '12px' : '0', alignItems: 'center' }}>
@@ -66,7 +66,6 @@ function ScriptureSlideRow({
               cursor: isFirst ? 'not-allowed' : 'pointer',
               opacity: isFirst ? 0.5 : 1,
               fontSize: '12px',
-              borderRadius: '4px'
             }}
             title="Move up"
           >
@@ -83,7 +82,6 @@ function ScriptureSlideRow({
               cursor: isLast ? 'not-allowed' : 'pointer',
               opacity: isLast ? 0.5 : 1,
               fontSize: '12px',
-              borderRadius: '4px'
             }}
             title="Move down"
           >
@@ -99,7 +97,6 @@ function ScriptureSlideRow({
               color: 'white',
               cursor: 'pointer',
               fontSize: '12px',
-              borderRadius: '4px'
             }}
             title="Delete slide"
           >
@@ -111,20 +108,13 @@ function ScriptureSlideRow({
       {isExpanded && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-              Image URL
-            </label>
-            <input
-              type="url"
-              value={slide.imageUrl}
-              onChange={(e) => onUpdate(slide.id, { imageUrl: e.target.value })}
-              placeholder="https://example.com/image.jpg"
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid var(--color-base-300)',
-                borderRadius: '4px',
-                fontSize: '14px'
+            <ImageSelector
+              value={slide.selectedImage}
+              onChange={(selected) => {
+                onUpdate(slide.id, {
+                  selectedImage: selected,
+                  record_attachment_id: selected?.value || null
+                });
               }}
             />
           </div>
@@ -142,7 +132,6 @@ function ScriptureSlideRow({
                 width: '100%',
                 padding: '6px 10px',
                 border: '1px solid var(--color-base-300)',
-                borderRadius: '4px',
                 fontSize: '14px',
                 resize: 'vertical'
               }}
@@ -162,33 +151,10 @@ function ScriptureSlideRow({
                 width: '100%',
                 padding: '6px 10px',
                 border: '1px solid var(--color-base-300)',
-                borderRadius: '4px',
                 fontSize: '14px'
               }}
             />
           </div>
-
-          {slide.imageUrl && (
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-                Preview
-              </label>
-              <img
-                src={slide.imageUrl}
-                alt="Slide preview"
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '200px',
-                  objectFit: 'cover',
-                  borderRadius: '4px',
-                  border: '1px solid var(--color-base-300)'
-                }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -215,7 +181,6 @@ export default function ScriptureSlideEditor({
             color: 'white',
             cursor: 'pointer',
             fontSize: '14px',
-            borderRadius: '4px'
           }}
         >
           + Add Slide
@@ -225,7 +190,9 @@ export default function ScriptureSlideEditor({
   }
 
   return (
-    <div>
+    <div style={{
+      padding: '8px',
+    }}>
       {slides.map((slide, index) => (
         <ScriptureSlideRow
           key={slide.id}
@@ -248,7 +215,6 @@ export default function ScriptureSlideEditor({
           cursor: 'pointer',
           fontSize: '14px',
           width: '100%',
-          borderRadius: '4px',
           marginTop: '8px'
         }}
       >

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, router } from '@inertiajs/react';
 
 // Debounce utility function
-function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
+export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   return ((...args: Parameters<T>) => {

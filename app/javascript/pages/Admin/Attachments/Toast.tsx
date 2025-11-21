@@ -33,7 +33,6 @@ export default function Toast({
   };
 
   const backgroundColor = colors[level] || colors.info;
-  console.log('Rendering Toast', { id, message, level, backgroundColor });
 
   return (
     <div

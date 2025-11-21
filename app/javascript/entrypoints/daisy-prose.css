@@ -1,0 +1,173 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* mdx-editor-daisy.css */
+.daisy-prose h1 {
+    @apply text-4xl font-bold mb-6 mt-8;
+}
+
+.daisy-prose h2 {
+    @apply text-3xl font-bold mb-4 mt-6;
+}
+
+.daisy-prose h3 {
+    @apply text-2xl font-semibold mb-3 mt-5;
+}
+
+.daisy-prose h4 {
+    @apply text-xl font-semibold mb-3 mt-4;
+}
+
+.daisy-prose p {
+    @apply mb-4 leading-relaxed;
+}
+
+.daisy-prose blockquote {
+    @apply border-l-4 border-base-300 pl-4 mb-4 my-4 italic opacity-80;
+}
+
+.daisy-prose code {
+    @apply bg-base-200 px-1.5 py-1 rounded text-sm font-mono;
+}
+
+.daisy-prose pre {
+    @apply bg-base-200 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+/* DaisyUI Alert styles for admonitions */
+.daisy-prose .admonition {
+    @apply alert mb-4;
+}
+
+.daisy-prose .admonition-info {
+    @apply alert alert-info;
+}
+
+.daisy-prose .admonition-warning {
+    @apply alert alert-warning;
+}
+
+.daisy-prose .admonition-danger,
+.daisy-prose .admonition-error {
+    @apply alert alert-error;
+}
+
+.daisy-prose .admonition-success,
+.daisy-prose .admonition-tip {
+    @apply alert alert-success;
+}
+
+/* Lists */
+.daisy-prose ul {
+    @apply list-disc list-inside mb-4 space-y-2;
+}
+
+.daisy-prose ol {
+    @apply list-decimal list-inside mb-4 space-y-2;
+}
+
+/* Links */
+.daisy-prose a {
+    @apply link link-primary;
+}
+
+/* Alternative: wrap images in figure tags for proper captions */
+.daisy-prose figure {
+    @apply mb-4;
+}
+
+.daisy-prose figcaption {
+    @apply text-sm text-center italic text-base-content/70 mt-2;
+}
+
+/* Tables (if you use them) */
+.daisy-prose table {
+    @apply table table-zebra border border-base-300;
+}
+
+.daisy-prose th {
+    @apply font-bold bg-base-200 border border-base-300;
+}
+
+.daisy-prose td {
+    @apply border border-base-300;
+}
+
+/* Dividers */
+.daisy-prose hr {
+    @apply divider;
+}
+
+/* Images */
+.daisy-prose img {
+    max-height: 400px;
+}
+
+/* mdx-editor-daisy-admonitions.css */
+
+/* Base admonition styling */
+.daisy-prose .admonition {
+    @apply alert mb-4 text-left;
+}
+
+.daisy-prose .admonition-title {
+    @apply font-bold mb-1;
+}
+
+/* INFO / NOTE variants */
+.daisy-prose .admonition-note,
+.daisy-prose .admonition-info {
+    @apply alert alert-info;
+}
+
+/* SUCCESS / TIP variants */
+.daisy-prose .admonition-tip,
+.daisy-prose .admonition-success {
+    @apply alert alert-success;
+}
+
+/* WARNING / CAUTION variants */
+.daisy-prose .admonition-warning,
+.daisy-prose .admonition-caution,
+.daisy-prose .admonition-attention {
+    @apply alert alert-warning;
+}
+
+/* ERROR / DANGER variants */
+.daisy-prose .admonition-danger,
+.daisy-prose .admonition-error,
+.daisy-prose .admonition-failure {
+    @apply alert alert-error;
+}
+
+/* Optional: Add icons using DaisyUI's alert icons */
+.daisy-prose .admonition-info::before {
+    content: "ℹ️";
+    @apply mr-2;
+}
+
+.daisy-prose .admonition-tip::before {
+    content: "💡";
+    @apply mr-2;
+}
+
+.daisy-prose .admonition-warning::before {
+    content: "⚠️";
+    @apply mr-2;
+}
+
+.daisy-prose .admonition-danger::before {
+    content: "🚨";
+    @apply mr-2;
+}
+
+/* If you want to use DaisyUI's SVG icons instead */
+.daisy-prose .admonition-info {
+    @apply alert alert-info flex items-start;
+}
+
+.daisy-prose .admonition-info::before {
+    content: '';
+    @apply mask mask-squircle w-6 h-6 shrink-0 mr-2 bg-info-content;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
+}

@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 export interface ScriptureSlide {
   id: string;
-  imageUrl: string;
+  record_attachment_id: number | null;
   scriptureText: string;
   reference: string;
+  selectedImage?: any;
 }
 
 export interface UseScriptureSlideEditorReturn {
@@ -36,7 +37,7 @@ export function useScriptureSlideEditor(
   const addSlide = () => {
     const newSlide: ScriptureSlide = {
       id: generateId(),
-      imageUrl: '',
+      record_attachment_id: null,
       scriptureText: '',
       reference: ''
     };
