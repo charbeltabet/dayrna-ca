@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_20_033640) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_07_201243) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_033640) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "show_on_homepage", default: true, null: false
   end
 
   create_table "home_page_data", force: :cascade do |t|
@@ -72,6 +73,31 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_033640) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["data"], name: "index_home_page_data_on_data", using: :gin
+  end
+
+  create_table "navigations", force: :cascade do |t|
+    t.string "name"
+    t.string "url"
+    t.integer "navigation_parent_id"
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "item_type", default: "NAV", null: false
+    t.string "external_link"
+    t.string "label"
+    t.index ["navigation_parent_id"], name: "index_navigations_on_navigation_parent_id"
+  end
+
+  create_table "pages", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "slug", null: false
+    t.text "content"
+    t.integer "position", default: 0, null: false
+    t.integer "navigation_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["navigation_id", "slug"], name: "index_pages_on_navigation_id_and_slug", unique: true
+    t.index ["navigation_id"], name: "index_pages_on_navigation_id"
   end
 
   create_table "record_attachments", force: :cascade do |t|
@@ -87,4 +113,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_20_033640) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attachment_group_memberships", "attachments_groups"
   add_foreign_key "attachment_group_memberships", "record_attachments"
+  add_foreign_key "pages", "navigations"
 end

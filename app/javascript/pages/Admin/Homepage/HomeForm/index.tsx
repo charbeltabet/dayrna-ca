@@ -1,5 +1,3 @@
-import { useMenuEditor, MenuItem } from './useMenuEditor';
-import MenuItemEditor from './MenuItemEditor';
 import { useScriptureSlideEditor, ScriptureSlide } from './useScriptureSlideEditor';
 import ScriptureSlideEditor from './ScriptureSlideEditor';
 import { CollapsibleSection } from './CollapsibleSection';
@@ -19,22 +17,6 @@ export default function HomeForm({
   initialData
 }: HomeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    menuItems,
-    addMenuItem,
-    updateMenuItem,
-    deleteMenuItem,
-    moveMenuItem
-  } = useMenuEditor(
-    homePageData?.header_menu || [],
-    (updatedMenu: MenuItem[]) => {
-      setHomePageData({
-        ...homePageData,
-        header_menu: updatedMenu
-      });
-    }
-  );
 
   const {
     slides,
@@ -217,19 +199,6 @@ export default function HomeForm({
                 />
               </div>
             </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Menu"
-            description="Manage the navigation menu items that appear in the header."
-          >
-            <MenuItemEditor
-              items={menuItems}
-              onUpdate={updateMenuItem}
-              onDelete={deleteMenuItem}
-              onAdd={addMenuItem}
-              onMove={moveMenuItem}
-            />
           </CollapsibleSection>
 
           <CollapsibleSection

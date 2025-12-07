@@ -1,4 +1,4 @@
-import RichMarkdown from "./RichMarkdownContent";
+import RichMarkdownContent from "./RichMarkdownContent";
 
 export default function AnnouncementVisitorView({
   announcement
@@ -47,9 +47,9 @@ export default function AnnouncementVisitorView({
       <div className="prose prose-lg max-w-none" style={{
         lineHeight: '1.75',
       }}>
-        <RichMarkdown>
+        <RichMarkdownContent>
           {announcement.content}
-        </RichMarkdown>
+        </RichMarkdownContent>
       </div>
     </article>
   )

@@ -1,59 +1,64 @@
-export default function MediaSection() {
+import MediaGroupCard from './MediaGroupCard'
+
+interface Attachment {
+  id: number
+  title: string | null
+  description: string | null
+  public_url: string
+  thumbnail_url: string | null
+  filename?: string
+  created_at: string
+}
+
+interface AttachmentGroup {
+  id: number
+  title: string
+  description: string | null
+  recent_attachments: Attachment[]
+  created_at: string
+  updated_at: string
+}
+
+export default function MediaSection({
+  attachmentGroups
+}: {
+  attachmentGroups: AttachmentGroup[]
+}) {
   return (
     <div style={{
-      backgroundColor: 'var(--color-neutral)',
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: '20px 100px',
-      gap: '50px'
+      backgroundColor: 'var(--color-base-300)',
+      padding: '40px 20px',
     }}>
       <div style={{
-        flex: 1,
+        maxWidth: '1400px',
+        margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
+        gap: '24px',
         alignItems: 'center',
-        overflow: 'hidden',
-        color: 'var(--color-base-300)',
       }}>
-        <h1 className="text-4xl font-bold">
+        <h1
+          className="text-4xl font-bold"
+          style={{
+            color: 'var(--color-neutral)',
+            marginBottom: '16px',
+          }}
+        >
           Media
         </h1>
         <div style={{
           width: '100%',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '24px',
         }}>
-          <div>
-            <p className="text-2xl font-bold">
-              Messes précédentes
-            </p>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: '10px',
-              overflowX: 'scroll',
-            }}>
-              {/* render 10 squares using ts */}
-              {Array.from({ length: 30 }).map((_, index) => (
-                <div
-                  key={index}
-                  style={{
-                    minWidth: '200px',
-                    aspectRatio: '1 / 1',
-                    backgroundColor: 'var(--color-base-300)',
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+          {attachmentGroups.map((attachmentGroup: AttachmentGroup) => (
+            <MediaGroupCard
+              key={attachmentGroup.id}
+              attachmentGroup={attachmentGroup}
+            />
+          ))}
         </div>
-        <button className="btn btn-primary">
-          Voir tous les medias
-        </button>
       </div>
     </div>
   )

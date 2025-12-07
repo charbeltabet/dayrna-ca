@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import FileInputForm from './FileInputForm';
 import { router } from '@inertiajs/react';
 
@@ -27,7 +27,10 @@ function FileInput({
 }: FileInputProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState('');
+  const [isFetchingUrls, setIsFetchingUrls] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -95,23 +98,168 @@ function FileInput({
     }
   };
 
+  const handlePaste = (e: ClipboardEvent) => {
+    // Handle files from clipboard
+    if (e.clipboardData?.files && e.clipboardData.files.length > 0) {
+      handleFiles(e.clipboardData.files);
+      return;
+    }
+
+    // Handle clipboard items (for screenshots/images)
+    const items = e.clipboardData?.items;
+    if (items) {
+      const fileArray: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) {
+            fileArray.push(file);
+          }
+        }
+      }
+      if (fileArray.length > 0 && validateFiles(fileArray)) {
+        setFiles([...files, ...fileArray]);
+      }
+    }
+  };
+
+  const fetchFilesFromUrls = async () => {
+    if (!urlInput.trim()) {
+      setError('Please enter at least one URL');
+      return;
+    }
+
+    setIsFetchingUrls(true);
+    setError(null);
+
+    const urls = urlInput
+      .split(',')
+      .map(url => url.trim())
+      .filter(url => url.length > 0);
+
+    const fetchedFiles: File[] = [];
+    const errors: string[] = [];
+
+    for (const url of urls) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          errors.push(`Failed to fetch ${url}: ${response.statusText}`);
+          continue;
+        }
+
+        const blob = await response.blob();
+
+        // Extract filename from URL or Content-Disposition header
+        let filename = 'downloaded-file';
+        const contentDisposition = response.headers.get('Content-Disposition');
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch && filenameMatch[1]) {
+            filename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        } else {
+          // Extract from URL
+          const urlPath = new URL(url).pathname;
+          const urlFilename = urlPath.substring(urlPath.lastIndexOf('/') + 1);
+          if (urlFilename) {
+            filename = urlFilename;
+          }
+        }
+
+        // Add extension based on MIME type if missing
+        if (!filename.includes('.')) {
+          const extension = blob.type.split('/')[1];
+          if (extension) {
+            filename += `.${extension}`;
+          }
+        }
+
+        const file = new File([blob], filename, { type: blob.type });
+        fetchedFiles.push(file);
+      } catch (err) {
+        errors.push(`Error fetching ${url}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      }
+    }
+
+    setIsFetchingUrls(false);
+
+    if (errors.length > 0) {
+      setError(errors.join('; '));
+    }
+
+    if (fetchedFiles.length > 0) {
+      if (validateFiles(fetchedFiles)) {
+        setFiles([...files, ...fetchedFiles]);
+        setUrlInput('');
+      }
+    } else if (errors.length === 0) {
+      setError('No files could be fetched from the provided URLs');
+    }
+  };
+
+  // Add paste event listener
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener('paste', handlePaste);
+      return () => {
+        container.removeEventListener('paste', handlePaste);
+      };
+    }
+  }, [files, handlePaste]);
+
   const currentTotalSize = files.reduce((sum, file) => sum + file.size, 0);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div ref={containerRef} className="flex w-full flex-col">
+      {/* URL Input Section */}
+      <div className="bg-base-300 grid place-items-center p-4">
+        <div className="w-full">
+          <label className="label">
+            <span className="label-text font-bold">Fetch files from URLs</span>
+          </label>
+          <div className="flex gap-2 items-start w-full">
+            <input
+              type="text"
+              placeholder="Enter comma-separated URLs"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  fetchFilesFromUrls();
+                }
+              }}
+              disabled={isFetchingUrls}
+              className="input input-bordered w-full"
+            />
+            <button
+              onClick={fetchFilesFromUrls}
+              disabled={isFetchingUrls || !urlInput.trim()}
+              className="btn btn-primary"
+            >
+              {isFetchingUrls ? 'Fetching...' : 'Fetch'}
+            </button>
+          </div>
+          <div className="label">
+            <span className="label-text-alt">Separate multiple URLs with commas</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="divider">OR</div>
+
       {/* Drag and drop area */}
       <div
         onClick={handleClick}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        className="bg-base-300 grid place-items-center p-8 cursor-pointer transition-all"
         style={{
           border: isDragging ? '2px dashed #570df8' : '2px dashed #ddd',
-          padding: '32px',
-          textAlign: 'center',
-          cursor: 'pointer',
-          backgroundColor: isDragging ? '#f0e6ff' : '#fafafa',
-          transition: 'all 0.2s'
+          backgroundColor: isDragging ? '#f0e6ff' : undefined
         }}
       >
         <input
@@ -124,10 +272,8 @@ function FileInput({
         />
         <svg
           xmlns="http://www.w3.org/2000/svg"
+          className="w-12 h-12 mb-3 mx-auto"
           style={{
-            width: '48px',
-            height: '48px',
-            margin: '0 auto 12px',
             color: isDragging ? '#570df8' : '#999'
           }}
           fill="none"
@@ -141,16 +287,16 @@ function FileInput({
             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
           />
         </svg>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px', color: '#333' }}>
-          Drag and drop files here
+        <div className="font-bold mb-2">
+          Drag and drop or Paste
         </div>
-        <div style={{ fontSize: '14px', color: '#666' }}>
-          or click to browse
+        <div className="text-sm text-base-content/70">
+          or click to browse, or paste files/images
         </div>
       </div>
 
       {/* File limits info */}
-      <div style={{ fontSize: '12px', color: '#666', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div className="text-xs text-base-content/70 flex flex-col gap-1">
         <div>Max single file: {formatFileSize(maxSingleFileSize)}</div>
         <div>Max total: {formatFileSize(maxTotalSize)} (used: {formatFileSize(currentTotalSize)})</div>
         {acceptedTypes.length > 0 && (
@@ -160,14 +306,7 @@ function FileInput({
 
       {/* Error message */}
       {error && (
-        <div style={{
-          padding: '8px 12px',
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
-          borderRadius: '4px',
-          color: '#c00',
-          fontSize: '14px'
-        }}>
+        <div className="alert alert-error p-3">
           {error}
         </div>
       )}

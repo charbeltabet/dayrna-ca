@@ -3,14 +3,13 @@ import { faHouse, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HomeContext from "./Home/context";
 import { useContext } from "react";
-import { Link, usePage } from "@inertiajs/react";
+import { Link } from "@inertiajs/react";
 
 export default function TopRibon() {
   const { homePageData } = useContext(HomeContext);
   const topRibbon = homePageData?.top_ribbon || {};
 
-  const currentUrl = usePage().url;
-  const currentAdminUrl = "/admin/" + currentUrl.substring(1);
+  const currentAdminUrl = "/admin/"
 
   return (
     <div style={{
