@@ -5,10 +5,12 @@ import Home from "../../Home";
 
 interface HomePreviewProps {
   homePageData: any;
+  attachment_groups: any;
 }
 
 export default function HomePreview({
-  homePageData
+  homePageData,
+  attachment_groups
 }: HomePreviewProps) {
   const previewRef = useRef<any>(null)
 
@@ -72,6 +74,7 @@ export default function HomePreview({
       >
         <Home
           homePageData={homePageData}
+          attachment_groups={attachment_groups}
         />
       </div>
     </div>

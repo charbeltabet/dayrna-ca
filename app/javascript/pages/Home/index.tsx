@@ -1,19 +1,19 @@
-import MediaSection from '../MediaSection'
-import NavigationSections from '../NavigationSections'
 import FooterSection from '../FooterSection'
 import TimeSection from '../TimeSection'
 import TopRibon from '../TopRibon'
 import NavigationBar from '../NavigationBar'
 import HeroSection from '../HeroSection'
-import SouvenirSection from '../SouvenirSection'
 import HomeContext from './context'
 import ScriptureSlideShow from './ScriptureSlideShow'
+import MediaSection from '../MediaSection'
+import OurLadyIconDescription from './OurLadyIconDescription'
+import ReferencesSection from '../ReferencesSection'
 
-interface HomeProps {
-  homePageData: any
-}
-
-export default function Home({ homePageData }: HomeProps) {
+export default function Home({
+  homePageData,
+  attachment_groups: attachmentGroups
+}: any) {
+  console.log('attachment_groups', attachmentGroups)
   return (
     <HomeContext.Provider value={{ homePageData }}>
       <div
@@ -39,9 +39,12 @@ export default function Home({ homePageData }: HomeProps) {
           <TimeSection
             announcements={homePageData?.announcements}
           />
-          <NavigationSections />
-          <SouvenirSection />
-          <MediaSection />
+          {/* <OurLadyIconDescription /> */}
+          <ReferencesSection />
+          <MediaSection
+            attachmentGroups={attachmentGroups}
+          />
+          {/* <SouvenirSection /> */}
           <FooterSection />
         </div>
       </div>

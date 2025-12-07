@@ -21,9 +21,11 @@ export default function AttachmentGroupPreview({
   const { data, setData, patch, processing } = useForm<{
     title: string;
     description: string;
+    show_on_homepage: boolean;
   }>({
     title: groupRow.title || '',
     description: groupRow.description || '',
+    show_on_homepage: groupRow.show_on_homepage ?? true,
   });
 
   const handleSubmit: FormEventHandler = (e) => {
@@ -36,6 +38,7 @@ export default function AttachmentGroupPreview({
           setData({
             title: updatedGroup.title || '',
             description: updatedGroup.description || '',
+            show_on_homepage: updatedGroup.show_on_homepage ?? true,
           });
         }
       }
@@ -142,6 +145,23 @@ export default function AttachmentGroupPreview({
                   rows={4}
                   value={data.description}
                   onChange={(e) => setData('description', e.target.value)}
+                />
+              </div>
+
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <label className="label">
+                  <span className="label-text">Show on homepage</span>
+                </label>
+                <input
+                  type="checkbox"
+                  className="toggle"
+                  checked={data.show_on_homepage}
+                  onChange={(e) => {
+                    setData('show_on_homepage', e.target.checked);
+                  }}
                 />
               </div>
             </form>

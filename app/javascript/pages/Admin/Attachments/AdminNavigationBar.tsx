@@ -1,4 +1,4 @@
-import { faHouse, faLayerGroup, faPhotoFilm, faScroll, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faLayerGroup, faMap, faPhotoFilm, faScroll, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "@inertiajs/react";
 
@@ -32,6 +32,18 @@ export default function AdminNavigationBar() {
               >
                 <FontAwesomeIcon icon={faHouse} />
                 Homepage
+              </Link>
+            </li>
+          </ul>
+          <ul className="menu bg-base-300 lg:menu-horizontal">
+            <li
+              className={/^\/admin\/navigations(\/\d+)?$/.test(path) ? "menu-active" : ""}
+            >
+              <Link
+                href="/admin/navigations"
+              >
+                <FontAwesomeIcon icon={faMap} />
+                Navigation
               </Link>
             </li>
           </ul>

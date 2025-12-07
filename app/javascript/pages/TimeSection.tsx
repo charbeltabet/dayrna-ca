@@ -1,8 +1,27 @@
+import { useRef, useEffect, useState } from "react";
 import AnnouncementCard from "./AnnouncementCard";
 
 export default function TimeSection({
   announcements
 }: any) {
+  const calendarFrameRef = useRef<HTMLDivElement>(null)
+  const [calendarDimensions, setCalendarDimensions] = useState({ width: 0, height: 0 })
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (calendarFrameRef.current) {
+        setCalendarDimensions({
+          width: calendarFrameRef.current.offsetWidth,
+          height: calendarFrameRef.current.offsetHeight
+        })
+      }
+    }
+
+    updateDimensions()
+    window.addEventListener('resize', updateDimensions)
+    return () => window.removeEventListener('resize', updateDimensions)
+  }, [])
+
   return (
     <div style={{
       display: 'flex',
@@ -45,12 +64,23 @@ export default function TimeSection({
         <h1 className="text-4xl font-bold">
           Calendrier
         </h1>
-        <div style={{
-          width: '100%',
-          height: '400px',
-          backgroundColor: 'orange'
-        }}>
-          embedded calendar
+        <div
+          ref={calendarFrameRef}
+          style={{
+            width: '100%',
+            height: '400px',
+          }}
+        >
+          {calendarDimensions.width > 0 && (
+            <iframe
+              src="https://calendar.google.com/calendar/embed?src=3eca8543cc46a40dcc1f3b8f64bce471ade25b51c0bfe5b3a07cc42e6a947229%40group.calendar.google.com&ctz=America%2FNipigon&mode=AGENDA"
+              style={{
+                border: 0
+              }}
+              width={calendarDimensions.width}
+              height={calendarDimensions.height}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -5,9 +5,10 @@ import { useState } from "react";
 
 interface HomepageIndexProps {
   home_page_data: any;
+  attachment_groups: any;
 }
 
-export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
+export default function HomepageIndex({ home_page_data, attachment_groups }: HomepageIndexProps) {
   const [homePageData, setHomePageData] = useState(home_page_data || {})
   const [initialData] = useState(home_page_data || {})
 
@@ -38,6 +39,7 @@ export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
         >
           <HomePreview
             homePageData={homePageData}
+            attachment_groups={attachment_groups}
           />
         </div>
       </div>
