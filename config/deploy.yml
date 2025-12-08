@@ -20,6 +20,7 @@ servers:
 proxy:
   ssl: true
   host: dayrnadev.maronitehub.org
+  app_port: 3000
 
 # Credentials for your image host.
 registry:
