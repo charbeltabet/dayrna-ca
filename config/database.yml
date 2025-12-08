@@ -19,8 +19,8 @@ default: &default
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
-  username: <%= ENV.fetch("POSTGRES_USER", "devuser") %>
-  password: <%= ENV.fetch("POSTGRES_PASSWORD", "password") %>
+  username: <%= Rails.application.credentials.dig(:database, :username) || "devuser" %>
+  password: <%= "\"#{Rails.application.credentials.dig(:database, :password)}\"" || "password" %>
   host: dayrna_ca-db
   port: <%= ENV.fetch("DATABASE_PORT", "5432") %>
 
