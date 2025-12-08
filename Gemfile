@@ -19,7 +19,7 @@ gem "inertia_rails", github: "inertiajs/inertia-rails", branch: "master"
 gem "pry"
 
 gem "aws-sdk-s3"
-gem "kramdown", "~> 1.11", ">= 1.11.1"
+gem "kramdown", "~> 2.5"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
