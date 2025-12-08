@@ -73,8 +73,6 @@ production:
   primary: &primary_production
     <<: *default
     database: dayrna_ca_production
-    username: dayrna_ca
-    password: <%= ENV["DAYRNA_CA_DATABASE_PASSWORD"] %>
   cache:
     <<: *primary_production
     database: dayrna_ca_production_cache
