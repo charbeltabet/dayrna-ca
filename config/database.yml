@@ -21,7 +21,7 @@ default: &default
 
   username: <%= ENV.fetch("POSTGRES_USER", "devuser") %>
   password: <%= ENV.fetch("POSTGRES_PASSWORD", "password") %>
-  host: <%= ENV.fetch("DATABASE_HOST", "db") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "dayrna_ca-db") %>
   port: <%= ENV.fetch("DATABASE_PORT", "5432") %>
 
 
