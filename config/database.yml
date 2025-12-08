@@ -19,12 +19,13 @@ default: &default
   # https://guides.rubyonrails.org/configuring.html#database-pooling
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
+  username: <%= Rails.application.credentials.dig(:database, :username) %>
+  password: <%= Rails.application.credentials.dig(:database, :password) %>
+  database: <%= Rails.application.credentials.dig(:database, :database) %>
+
 
 development:
   <<: *default
-  database: dayrna_ca_development
-  username: devuser
-  password: password
   host: localhost
   port: 5432
 
