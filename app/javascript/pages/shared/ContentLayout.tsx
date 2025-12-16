@@ -1,6 +1,6 @@
 import HomeContext from "../Home/context";
-import NavigationBar from "../NavigationBar";
-import TopRibon from "../TopRibon";
+import NavigationBar from "../Home/sections/NavigationBar";
+import TopRibon from "../Home/sections/TopRibon";
 
 interface ContentLayoutProps {
   homePageData: any;

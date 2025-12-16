@@ -1,8 +1,8 @@
 import { faChurch, faCalendarDays, faHandsPraying } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import FactItem from "./FactItem";
-import ShowcaseGallery from "./ShowcaseGallery";
-import HomeContext from "./Home/context";
+import FactItem from "../../FactItem";
+import ShowcaseGallery from "../../ShowcaseGallery";
+import HomeContext from "../context";
 import { useContext } from "react";
 
 export default function HeroSection() {

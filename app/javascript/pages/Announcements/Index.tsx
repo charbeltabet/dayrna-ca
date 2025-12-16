@@ -1,7 +1,7 @@
 import { Link } from "@inertiajs/react";
 import HomeContext from "../Home/context";
-import NavigationBar from "../NavigationBar";
-import TopRibon from "../TopRibon";
+import NavigationBar from "../Home/sections/NavigationBar";
+import TopRibon from "../Home/sections/TopRibon";
 import AnnouncementCard from "../AnnouncementCard";
 import { formatDate } from "./dates";
 

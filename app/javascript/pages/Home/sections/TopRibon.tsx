@@ -1,7 +1,7 @@
 import { faYoutube, faFacebook } from "@fortawesome/free-brands-svg-icons";
 import { faHouse, faPhone, faEnvelope, faClock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import HomeContext from "./Home/context";
+import HomeContext from "../context";
 import { useContext } from "react";
 
 export default function TopRibon() {

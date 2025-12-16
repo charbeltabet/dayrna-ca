@@ -2,7 +2,7 @@ import { faComments, faHandHoldingDollar } from "@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext } from "react";
 import { Link } from "@inertiajs/react";
-import HomeContext from "./Home/context";
+import HomeContext from "../context";
 
 interface Navigation {
   id: number;

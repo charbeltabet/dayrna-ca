@@ -1,4 +1,4 @@
-import HomeContext from "./Home/context";
+import HomeContext from "../context";
 import { useContext } from "react";
 import { usePage } from "@inertiajs/react";
 

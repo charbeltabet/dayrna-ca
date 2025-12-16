@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react";
-import AnnouncementCard from "./AnnouncementCard";
+import AnnouncementCard from "../../AnnouncementCard";
 
 export default function TimeSection({
   announcements

@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { LabeledImage } from '../../components/LabeledImage';
+import { LabeledImage } from '../../../components/LabeledImage';
 import { faDownload, faShare } from '@fortawesome/free-solid-svg-icons';
 
 export default function OurLadyIconDescription() {

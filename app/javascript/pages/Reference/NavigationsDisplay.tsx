@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import HomeContext from "../Home/context";
-import { NavigationData } from "../NavigationBar";
+import { NavigationData } from "../Home/sections/NavigationBar";
 import ReferenceCard from "./ReferenceCard";
 
 export default function NavigationsDisplay({

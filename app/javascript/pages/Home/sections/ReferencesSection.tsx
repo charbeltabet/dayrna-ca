@@ -1,4 +1,4 @@
-import NavigationsDisplay from './Reference/NavigationsDisplay';
+import NavigationsDisplay from '../../Reference/NavigationsDisplay';
 
 export default function ReferencesSection() {
   return (

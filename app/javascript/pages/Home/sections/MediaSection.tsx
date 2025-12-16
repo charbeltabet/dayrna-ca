@@ -1,4 +1,4 @@
-import MediaGroupCard from './MediaGroupCard'
+import MediaGroupCard from '../../MediaGroupCard'
 
 interface Attachment {
   id: number
