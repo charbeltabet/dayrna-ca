@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LabeledImage } from '../../../components/LabeledImage';
 import { faDownload, faShare } from '@fortawesome/free-solid-svg-icons';
+import { HomeSectionLayout } from '../../../components/HomeSectionLayout';
 
 export default function OurLadyIconDescription() {
   const pdfUrl = "https://dayrnadevassets.tabet.tech/attachments/98/MD_DIASPORA_CERTIFICATE.pdf"
@@ -44,29 +45,9 @@ export default function OurLadyIconDescription() {
   };
 
   return (
-    <div style={{
-      width: '100%',
-      display: 'flex',
-      gap: '10px',
-      flexDirection: 'column',
-      backgroundColor: 'var(--color-neutral)',
-      color: 'var(--color-base-300)',
-      padding: '20px 100px',
-    }}>
-      <div style={{
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2px'
-      }}>
-        <h1 className="text-4xl font-bold">
-          Notre Dame Du Diaspora
-        </h1>
-        <div>
-
-        </div>
-      </div>
-      <div>
+    <HomeSectionLayout.Container>
+      <HomeSectionLayout.Header>Notre Dame Du Diaspora</HomeSectionLayout.Header>
+      <HomeSectionLayout.Content>
         <div style={{
           display: 'flex',
           flexDirection: 'row',
@@ -202,8 +183,7 @@ export default function OurLadyIconDescription() {
             </div>
           </div>
         </div>
-      </div>
-      {/* <LabeledImageEditor /> */}
-    </div>
+      </HomeSectionLayout.Content>
+    </HomeSectionLayout.Container>
   )
 } 

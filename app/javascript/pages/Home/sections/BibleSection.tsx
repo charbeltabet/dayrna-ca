@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { HomeSectionLayout } from "../../../components/HomeSectionLayout"
 
 export default function BibleSection() {
   const iframeContainerRef = useRef<any>(null)
@@ -13,35 +14,23 @@ export default function BibleSection() {
   }, [iframeContainerRef.current])
 
   return (
-    <div
-      ref={iframeContainerRef}
+    <HomeSectionLayout.Container
       style={{
-        width: '100%',
-        display: 'flex',
-        gap: '10px',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '20px 100px',
         backgroundImage: 'url("https://c8.alamy.com/comp/E1M8AD/arabic-bible-in-maronite-church-E1M8AD.jpg")',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
         backgroundSize: 'cover',
-        color: 'white'
       }}
+      ref={iframeContainerRef}
     >
-      <div className="liquid-glass text-center">
-        <h1 className="text-4xl font-bold px-4 py-2">
-          Bible
-        </h1>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-          }}
-          className="px-2 pb-2"
+      <div
+        className="liquid-glass"
+        style={{
+          padding: '10px',
+          textAlign: 'center'
+        }}>
+        <HomeSectionLayout.Header>Bible</HomeSectionLayout.Header>
+        <HomeSectionLayout.Content
         >
           {width > 0 && (
             <iframe
@@ -56,8 +45,8 @@ export default function BibleSection() {
               loading="lazy"
             />
           )}
-        </div>
+        </HomeSectionLayout.Content>
       </div>
-    </div>
+    </HomeSectionLayout.Container>
   )
 }

@@ -23,6 +23,7 @@ function LabeledImage({ src, labels = [] }: LabeledImageProps) {
   const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
   const [hasUserClicked, setHasUserClicked] = useState(false);
   const [showClickHint, setShowClickHint] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -90,6 +91,7 @@ function LabeledImage({ src, labels = [] }: LabeledImageProps) {
     const img = e.currentTarget;
     setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
     setImageSize({ width: img.clientWidth, height: img.clientHeight });
+    setImageLoaded(true);
   };
 
   const scaleX = imageSize.width / naturalSize.width || 1;
@@ -151,7 +153,7 @@ function LabeledImage({ src, labels = [] }: LabeledImageProps) {
             onLoad={handleImageLoad}
           />
 
-          {demoLabels.map((label, index) => {
+          {imageLoaded && demoLabels.map((label, index) => {
             const style = getSquareStyle(label.coordinates);
             const isActive = activeLabel === index;
             const showHintOnThis = showClickHint;

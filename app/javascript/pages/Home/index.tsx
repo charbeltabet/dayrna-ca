@@ -44,9 +44,7 @@ export default function Home({
           <ReferencesSection />
           <BibleSection />
           <OurLadyIconDescription />
-          <MediaSection
-            attachmentGroups={attachmentGroups}
-          />
+          <MediaSection attachmentGroups={attachmentGroups} />
           {/* <SouvenirSection /> */}
           <FooterSection />
         </div>

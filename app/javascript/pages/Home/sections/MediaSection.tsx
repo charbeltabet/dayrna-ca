@@ -1,4 +1,6 @@
+import { HomeSectionLayout } from '../../../components/HomeSectionLayout'
 import MediaGroupCard from '../../MediaGroupCard'
+import NavigationsDisplay from '../../Reference/NavigationsDisplay'
 
 interface Attachment {
   id: number
@@ -25,41 +27,24 @@ export default function MediaSection({
   attachmentGroups: AttachmentGroup[]
 }) {
   return (
-    <div style={{
+    <HomeSectionLayout.Container style={{
       backgroundColor: 'var(--color-base-300)',
-      padding: '40px 20px',
+      color: 'var(--color-neutral)'
     }}>
-      <div style={{
-        maxWidth: '1400px',
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
+      <HomeSectionLayout.Header>Media</HomeSectionLayout.Header>
+      <HomeSectionLayout.Content style={{
+        width: '100%',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
         gap: '24px',
-        alignItems: 'center',
       }}>
-        <h1
-          className="text-4xl font-bold"
-          style={{
-            color: 'var(--color-neutral)',
-            marginBottom: '16px',
-          }}
-        >
-          Media
-        </h1>
-        <div style={{
-          width: '100%',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '24px',
-        }}>
-          {attachmentGroups.map((attachmentGroup: AttachmentGroup) => (
-            <MediaGroupCard
-              key={attachmentGroup.id}
-              attachmentGroup={attachmentGroup}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+        {attachmentGroups.map((attachmentGroup: AttachmentGroup) => (
+          <MediaGroupCard
+            key={attachmentGroup.id}
+            attachmentGroup={attachmentGroup}
+          />
+        ))}
+      </HomeSectionLayout.Content>
+    </HomeSectionLayout.Container>
   )
 }
