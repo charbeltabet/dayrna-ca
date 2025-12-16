@@ -8,6 +8,7 @@ import ScriptureSlideShow from './ScriptureSlideShow'
 import MediaSection from '../MediaSection'
 import ReferencesSection from '../ReferencesSection'
 import BibleSection from '../BibleSection'
+import OurLadyIconDescription from './OurLadyIconDescription'
 
 export default function Home({
   homePageData,
@@ -42,6 +43,7 @@ export default function Home({
           {/* <OurLadyIconDescription /> */}
           <ReferencesSection />
           <BibleSection />
+          <OurLadyIconDescription />
           <MediaSection
             attachmentGroups={attachmentGroups}
           />

@@ -1,15 +1,12 @@
 import { faYoutube, faFacebook } from "@fortawesome/free-brands-svg-icons";
-import { faHouse, faPhone, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { faHouse, faPhone, faEnvelope, faClock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HomeContext from "./Home/context";
 import { useContext } from "react";
-import { Link } from "@inertiajs/react";
 
 export default function TopRibon() {
   const { homePageData } = useContext(HomeContext);
   const topRibbon = homePageData?.top_ribbon || {};
-
-  const currentAdminUrl = "/admin/"
 
   return (
     <div style={{
@@ -96,8 +93,20 @@ export default function TopRibon() {
         )}
       </div>
 
-      {/* links to add here */}
+      {/* Mass schedules */}
       <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '8px',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+      }}>
+        <FontAwesomeIcon icon={faClock} />
+        Messes: Lun - Sam: 19h00 | Dim: 9h00, 11h30, 19h00
+      </div>
+      {/* links to add here */}
+      {/* <div style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'row',
@@ -111,7 +120,7 @@ export default function TopRibon() {
         >
           Admin
         </Link>
-      </div>
+      </div> */}
 
     </div>
   )

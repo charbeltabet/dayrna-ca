@@ -60,8 +60,11 @@ export default function ScriptureSlideShow({ slides }: ScriptureSlideShowProps) 
         height,
         ...(imageUrl ? {
           backgroundImage: `url(${imageUrl})`,
-          backgroundSize: 'cover',
           backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          backgroundSize: 'cover',
+          // backgroundSize: 'cover',
+          // backgroundPosition: 'center',
           animation: 'panBackground 3s ease-in-out infinite alternate',
         } : {
           backgroundColor: 'black',
@@ -86,22 +89,28 @@ export default function ScriptureSlideShow({ slides }: ScriptureSlideShowProps) 
         textAlign: 'center',
         padding: '2rem',
         maxWidth: '90%',
-      }}>
-        <h1
-          className="text-5xl"
-          style={{
-            fontStyle: 'italic',
-            marginBottom: '1rem',
-            lineHeight: '1.6',
+      }}
+        className="absolute bottom-4 left-4 right-4 text-center"
+      >
+        <div
+          className="liquid-glass px-4 py-2"
+        >
+          <h1
+            className="text-5xl"
+            style={{
+              fontStyle: 'italic',
+              marginBottom: '1rem',
+              lineHeight: '1.6',
+            }}>
+            "{currentSlide.scriptureText}"
+          </h1>
+          <p style={{
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
           }}>
-          "{currentSlide.scriptureText}"
-        </h1>
-        <p style={{
-          fontSize: '1.1rem',
-          fontWeight: 'bold',
-        }}>
-          — {currentSlide.reference}
-        </p>
+            — {currentSlide.reference}
+          </p>
+        </div>
       </div>
 
       {/* Down Arrow Button */}

@@ -78,3 +78,8 @@ body {
     scrollbar-width: none;
     /* Firefox */
 }
+
+.liquid-glass {
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+}
