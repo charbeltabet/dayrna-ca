@@ -217,7 +217,6 @@ export default function AttachmentGroupPreview({
                             backgroundColor: '#570df8',
                             color: 'white',
                             padding: '2px 6px',
-                            borderRadius: '4px',
                             fontSize: '10px',
                             fontWeight: 'bold'
                           }}>

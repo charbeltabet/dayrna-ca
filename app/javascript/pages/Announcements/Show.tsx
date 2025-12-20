@@ -72,7 +72,7 @@ export default function AnnouncementShow({
         {previousAnnouncement && (
           <Link
             href={`/announcements/${previousAnnouncement.id}`}
-            className="btn btn-outline btn-primary w-full justify-start"
+            className="btn btn-sm btn-outline btn-primary w-full justify-start"
           >
             <FontAwesomeIcon icon={faChevronLeft} />
             <div style={{
@@ -100,7 +100,7 @@ export default function AnnouncementShow({
         {nextAnnouncement && (
           <Link
             href={`/announcements/${nextAnnouncement.id}`}
-            className="btn btn-outline btn-primary w-full justify-end"
+            className="btn btn-sm btn-outline btn-primary w-full justify-end"
           >
             <div style={{
               display: 'flex',

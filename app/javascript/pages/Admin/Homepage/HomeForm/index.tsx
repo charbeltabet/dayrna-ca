@@ -105,7 +105,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -127,7 +126,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -149,7 +147,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -171,7 +168,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -193,7 +189,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -222,7 +217,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -244,7 +238,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -266,7 +259,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px',
                     resize: 'vertical'
                   }}
@@ -289,7 +281,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -311,7 +302,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />
@@ -344,7 +334,6 @@ export default function HomeForm({
                       width: '100%',
                       padding: '8px 12px',
                       border: '1px solid var(--color-base-300)',
-                      borderRadius: '4px',
                       fontSize: '14px'
                     }}
                   />
@@ -372,7 +361,6 @@ export default function HomeForm({
                       width: '100%',
                       padding: '8px 12px',
                       border: '1px solid var(--color-base-300)',
-                      borderRadius: '4px',
                       fontSize: '14px'
                     }}
                   />
@@ -395,7 +383,6 @@ export default function HomeForm({
                     width: '100%',
                     padding: '8px 12px',
                     border: '1px solid var(--color-base-300)',
-                    borderRadius: '4px',
                     fontSize: '14px'
                   }}
                 />

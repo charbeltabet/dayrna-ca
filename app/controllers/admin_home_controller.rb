@@ -41,32 +41,11 @@ class AdminHomeController < ApplicationController
         ]
       )
     data["announcements"] = announcements
-
     data["navigations"] = Navigation.as_nested_tree
     data["root_pages"] = Page.root_pages
 
-    meta, attachments = paginate(RecordAttachment.order(created_at: :desc))
-
-    attachment_groups = AttachmentsGroup.all
-    attachment_groups_data = attachment_groups.map do |group|
-      group.as_json.merge(
-        recent_attachments: group.record_attachments
-          .where("record_attachments.created_at IS NOT NULL")
-          .order(created_at: :desc)
-          .limit(10)
-          .as_json(methods: [ :public_url ])
-      )
-    end
-
-    render inertia: "Admin/Homepage/Index", props: {
-      home_page_data: data,
-      attachments: InertiaRails.scroll(meta, wrapper: "data") {
-        {
-          data: attachments.as_json(methods: [ :public_url ]),
-          meta: meta
-        }
-      },
-      attachment_groups: attachment_groups_data
+    render inertia: "Admin/Homepage/index", props: {
+      home_page_data: data
     }
   end
 

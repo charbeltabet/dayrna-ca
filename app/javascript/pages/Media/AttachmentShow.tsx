@@ -204,7 +204,6 @@ export default function MediaAttachmentShow({
                 <div style={{
                   padding: '12px',
                   backgroundColor: '#f3f4f6',
-                  borderRadius: '4px',
                 }}>
                   <p className="text-sm text-gray-600">
                     <strong>File:</strong> {attachment.filename}

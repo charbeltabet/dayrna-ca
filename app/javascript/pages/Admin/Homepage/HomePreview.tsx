@@ -1,30 +1,34 @@
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRef, useState, useEffect } from "react";
-import Home from "../../Home";
 
-interface HomePreviewProps {
-  homePageData: any;
-  attachment_groups: any;
-}
-
-export default function HomePreview({
-  homePageData,
-  attachment_groups
-}: HomePreviewProps) {
-  const previewRef = useRef<any>(null)
-
-  const targetWidth = 1980
-
+export default function HomePreview({ }) {
+  const previewRef = useRef<HTMLDivElement>(null)
+  const [targetVirtualWidth, setTargetVirtualWidth] = useState(1360)
   const [previewZoomLevel, setPreviewZoomLevel] = useState(1)
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
+
   useEffect(() => {
     if (!previewRef.current) return
 
-    const previewWidth = previewRef.current?.offsetWidth
-    const zoomLevel = previewWidth / targetWidth
+    // Use ResizeObserver to track container size changes
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width
+        const height = entry.contentRect.height
 
-    setPreviewZoomLevel(zoomLevel)
-  }, [targetWidth])
+        setContainerSize({ width, height })
+
+        // Calculate zoom level to make virtual width = targetVirtualWidth
+        const calculatedZoom = width / targetVirtualWidth
+        setPreviewZoomLevel(calculatedZoom)
+      }
+    })
+
+    resizeObserver.observe(previewRef.current)
+
+    return () => resizeObserver.disconnect()
+  }, [targetVirtualWidth])
 
   return (
     <div style={{
@@ -48,33 +52,39 @@ export default function HomePreview({
           <FontAwesomeIcon icon={faMagnifyingGlass} />
           <input
             type="range"
-            min={0}
-            max={2}
-            value={previewZoomLevel}
-            step={0.1}
+            min={400}
+            max={1360}
+            value={targetVirtualWidth}
+            step={10}
             className="range range-xs"
-            onChange={(e) => setPreviewZoomLevel(parseFloat(e.target.value))}
+            onChange={(e) => setTargetVirtualWidth(parseInt(e.target.value))}
           />
           <div>
-            {(previewZoomLevel * 100).toFixed(0)}%
+            {targetVirtualWidth}px
           </div>
         </div>
       </div>
-
       <div
         style={{
           border: '1px solid var(--color-neutral)',
           boxShadow: '-2px 0 4px rgba(0,0,0,0.1)',
-          zoom: previewZoomLevel,
           overflow: 'auto',
           flex: 1,
           minHeight: 0,
         }}
         ref={previewRef}
       >
-        <Home
-          homePageData={homePageData}
-          attachment_groups={attachment_groups}
+        <iframe
+          src="/"
+          style={{
+            border: '1px solid var(--color-base-300)',
+            width: `${targetVirtualWidth}px`,
+            height: `${containerSize.height / previewZoomLevel}px`,
+            zoom: previewZoomLevel,
+            transformOrigin: 'top left',
+          }}
+          tabIndex={-1}
+          loading="lazy"
         />
       </div>
     </div>

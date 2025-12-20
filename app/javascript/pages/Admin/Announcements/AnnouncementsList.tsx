@@ -97,7 +97,6 @@ function AdminAnnouncementCard({ announcement, currentAnnouncementId }: any) {
           </h2>
           <span style={{
             padding: '4px 8px',
-            borderRadius: '4px',
             fontSize: '11px',
             fontWeight: 600,
             color: status.color,

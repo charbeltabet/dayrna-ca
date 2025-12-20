@@ -42,7 +42,6 @@ export default function AdminAttachmentsIndex({
                   padding: '4px 8px',
                   width: 'fit-content',
                   color: 'white',
-                  borderRadius: '4px',
                   fontSize: '12px',
                   cursor: 'pointer'
                 }}
