@@ -5,30 +5,8 @@ import { CollapsibleSection } from './CollapsibleSection';
 import { FormField } from '../../../../components/FormField';
 import { useInertiaForm } from './hooks/useInertiaForm';
 
-interface HomePageData {
-  top_ribbon: {
-    phone: string;
-    email: string;
-    youtube_url: string;
-    facebook_url: string;
-  };
-  hero_section: {
-    subtitle: string;
-    heading: string;
-    description: string;
-    button_text: string;
-    button_link: string;
-    gallery_group: string;
-    mass_schedule: {
-      weekday: string;
-      sunday: string;
-    };
-    sanctuary_hours: string;
-  };
-}
-
 interface HomeFormProps {
-  serverData: HomePageData;
+  serverData: any;
   homePreviewRef: any;
 }
 
@@ -39,6 +17,7 @@ export default function HomeForm({ serverData, homePreviewRef }: HomeFormProps) 
     isSubmitting,
     onCancel
   } = useInertiaForm({
+    key: 'homepage',
     serverData,
     options: {
       url: '/admin/homepage',
@@ -53,7 +32,14 @@ export default function HomeForm({ serverData, homePreviewRef }: HomeFormProps) 
       onFinish: () => {
         console.log('finished submitting form')
       }
-    }
+    },
+    cleanBeforeSubmit: (data) => (
+      data.scripture_slides.map((slide: any) => ({
+        scripture_text: slide.scripture_text,
+        reference: slide.reference,
+        record_attachment_id: slide.record_attachment_id
+      }))
+    )
   })
 
   const {

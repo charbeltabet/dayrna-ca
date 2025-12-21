@@ -19,17 +19,21 @@ type UseInertiaFormOptions<T extends FieldValues> = UseFormProps<T> &
   (InertiaOptions<T> | CustomOptions<T>);
 
 type UseInertiaFormParams<T extends FieldValues> = {
+  key?: string;
   serverData: T;
   options: UseInertiaFormOptions<T>;
   routerOptions?: any;
   onPropChange?: (data: T) => void;
+  cleanBeforeSubmit?: (data: T) => T;
 };
 
 export function useInertiaForm<T extends FieldValues>({
+  key = 'data',
   serverData,
   options,
   routerOptions,
-  onPropChange
+  onPropChange,
+  cleanBeforeSubmit = (data) => data,
 }: UseInertiaFormParams<T>) {
   const {
     url,
@@ -51,21 +55,29 @@ export function useInertiaForm<T extends FieldValues>({
     e.preventDefault();
 
     return handleSubmit((data) => {
+      const cleanedData = cleanBeforeSubmit(data);
+
       if (customOnSubmit) {
-        customOnSubmit(data, {
+        customOnSubmit(cleanedData, {
           setIsSubmitting,
           reset: () => reset(serverData)
         });
       } else {
         setIsSubmitting(true);
-        router[method as 'get' | 'post' | 'put' | 'patch'](url, { data }, {
-          onSuccess: () => { },
-          ...routerOptions,
-          onFinish: () => {
-            routerOptions?.onFinish?.();
-            setIsSubmitting(false)
+        router[method as 'get' | 'post' | 'put' | 'patch'](
+          url,
+          {
+            [key]: cleanedData
+          },
+          {
+            onSuccess: () => { },
+            ...routerOptions,
+            onFinish: () => {
+              routerOptions?.onFinish?.();
+              setIsSubmitting(false)
+            }
           }
-        });
+        );
       }
     })()
   }

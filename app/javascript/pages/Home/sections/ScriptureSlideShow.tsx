@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 
 interface ScriptureSlide {
   record_attachment_id: number | null;
-  scriptureText: string;
+  scripture_text: string;
   reference: string;
   attachment?: {
     id: number;
@@ -102,7 +102,7 @@ export default function ScriptureSlideShow({ slides }: ScriptureSlideShowProps) 
               marginBottom: '1rem',
               lineHeight: '1.6',
             }}>
-            "{currentSlide.scriptureText}"
+            "{currentSlide.scripture_text}"
           </h1>
           <p style={{
             fontSize: '1.1rem',

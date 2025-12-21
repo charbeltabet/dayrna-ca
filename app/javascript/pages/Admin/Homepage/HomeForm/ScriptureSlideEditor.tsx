@@ -8,7 +8,7 @@ import { FormField } from '../../../../components/FormField';
 function ScriptureSlideRow({
   index,
   reference,
-  scriptureText,
+  scripture_text,
   selectedImage,
   onDelete,
   onMove,
@@ -17,7 +17,7 @@ function ScriptureSlideRow({
 }: {
   index: number;
   reference: string;
-  scriptureText: string;
+  scripture_text: string;
   selectedImage?: any;
   onDelete: () => void;
   onMove: (direction: 'up' | 'down') => void;
@@ -92,10 +92,10 @@ function ScriptureSlideRow({
           <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
             {reference || 'New Slide'}
           </div>
-          {scriptureText && (
+          {scripture_text && (
             <div style={{ fontSize: '12px', opacity: 0.7, lineHeight: '1.4' }}>
-              {scriptureText.substring(0, 100)}
-              {scriptureText.length > 100 ? '...' : ''}
+              {scripture_text.substring(0, 100)}
+              {scripture_text.length > 100 ? '...' : ''}
             </div>
           )}
         </div>
@@ -158,7 +158,7 @@ function ScriptureSlideRow({
           />
 
           <FormField.Field
-            name={`scripture_slides.${index}.scriptureText`}
+            name={`scripture_slides.${index}.scripture_text`}
             label="Scripture Text"
             placeholder="Enter the scripture text..."
             type="textarea"
@@ -186,7 +186,7 @@ export default function ScriptureSlideEditor() {
   const addSlide = () => {
     append({
       record_attachment_id: null,
-      scriptureText: '',
+      scripture_text: '',
       reference: '',
       selectedImage: null
     });
@@ -218,14 +218,14 @@ export default function ScriptureSlideEditor() {
     <div>
       {fields.map((field, index) => {
         const reference = watch(`scripture_slides.${index}.reference`);
-        const scriptureText = watch(`scripture_slides.${index}.scriptureText`);
+        const scripture_text = watch(`scripture_slides.${index}.scripture_text`);
         const selectedImage = watch(`scripture_slides.${index}.selectedImage`);
         return (
           <ScriptureSlideRow
             key={`scripture-slide-${index}-${field.id}`}
             index={index}
             reference={reference}
-            scriptureText={scriptureText}
+            scripture_text={scripture_text}
             selectedImage={selectedImage}
             onDelete={() => remove(index)}
             onMove={(direction) => {

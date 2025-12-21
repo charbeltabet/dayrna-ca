@@ -1,48 +1,6 @@
 class AdminHomeController < ApplicationController
   def index
-    home_page_data = HomePageData.instance
-    data = home_page_data.data.deep_dup
-
-    # Enrich scripture slides with attachment data
-    if data["scripture_slides"].present?
-      data["scripture_slides"] = data["scripture_slides"].map do |slide|
-        if slide["record_attachment_id"].present?
-          attachment = RecordAttachment.find_by(id: slide["record_attachment_id"])
-          if attachment
-            slide["attachment"] = {
-              id: attachment.id,
-              filename: attachment.filename.to_s,
-              public_url: attachment.public_url,
-              title: attachment.title,
-              description: attachment.description
-            }
-            # Also populate selectedImage for the form
-            slide["selectedImage"] = {
-              value: attachment.id,
-              label: attachment.filename.to_s,
-              thumbnail_url: attachment.public_url
-            }
-          end
-        end
-        slide
-      end
-    end
-
-    announcements = Announcement
-      .published
-      .where(published_at: ..Time.current)
-      .order(
-        published_at: :desc,
-        id: :desc,
-      ).as_json(
-        methods: [
-          :image_url,
-          :text_preview
-        ]
-      )
-    data["announcements"] = announcements
-    data["navigations"] = Navigation.as_nested_tree
-    data["root_pages"] = Page.root_pages
+    data = HomePageData.home_form_data
 
     render inertia: "Admin/Homepage/Index", props: {
       home_page_data: data
@@ -53,11 +11,11 @@ class AdminHomeController < ApplicationController
     home_page_data = HomePageData.instance
 
     if home_page_data.update(data: homepage_params)
-      redirect_to "/admin/homepage", flash: {
+      redirect_to admin_home_path, flash: {
         success: "Homepage data updated successfully."
       }
     else
-      redirect_to "/admin/homepage", flash: {
+      redirect_to admin_home_path, flash: {
         error: "Failed to update homepage data."
       }
     end
@@ -66,6 +24,29 @@ class AdminHomeController < ApplicationController
   private
 
   def homepage_params
-    params.require(:data).permit!
+    params.require(:homepage).permit(
+      top_ribbon: [
+        :address,
+        :phone,
+        :email,
+        :youtube_url,
+        :facebook_url
+      ],
+      scripture_slides: [
+        :scripture_text,
+        :reference,
+        :record_attachment_id
+      ],
+      hero_section: [
+        :subtitle,
+        :heading,
+        :description,
+        :button_text,
+        :button_link,
+        :gallery_group,
+        :sanctuary_hours,
+        { mass_schedule: [ :weekday, :sunday ] }
+      ]
+    )
   end
 end

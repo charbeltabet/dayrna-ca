@@ -3,7 +3,7 @@ import { useState } from 'react';
 export interface ScriptureSlide {
   id: string;
   record_attachment_id: number | null;
-  scriptureText: string;
+  scripture_text: string;
   reference: string;
   selectedImage?: any;
 }
@@ -38,7 +38,7 @@ export function useScriptureSlideEditor(
     const newSlide: ScriptureSlide = {
       id: generateId(),
       record_attachment_id: null,
-      scriptureText: '',
+      scripture_text: '',
       reference: ''
     };
 

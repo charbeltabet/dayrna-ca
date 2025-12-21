@@ -23,5 +23,8 @@ module DayrnaCa
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Raise an error when unpermitted parameters are encountered
+    config.action_controller.action_on_unpermitted_parameters = :raise
   end
 end
