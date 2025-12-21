@@ -1,179 +1,204 @@
-import { useState } from 'react';
-import { ScriptureSlide } from './useScriptureSlideEditor';
+import { useState, useRef, useEffect } from 'react';
+import { faArrowDown, faArrowUp, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useFormContext, useFieldArray } from 'react-hook-form';
 import ImageSelector from './ImageSelector';
-
-interface ScriptureSlideEditorProps {
-  slides: ScriptureSlide[];
-  onUpdate: (id: string, updates: Partial<Omit<ScriptureSlide, 'id'>>) => void;
-  onDelete: (id: string) => void;
-  onAdd: () => void;
-  onMove: (id: string, direction: 'up' | 'down') => void;
-}
+import { FormField } from '../../../../components/FormField';
 
 function ScriptureSlideRow({
-  slide,
-  onUpdate,
+  index,
+  reference,
+  scriptureText,
+  selectedImage,
   onDelete,
   onMove,
   isFirst,
   isLast
 }: {
-  slide: ScriptureSlide;
-  onUpdate: (id: string, updates: Partial<Omit<ScriptureSlide, 'id'>>) => void;
-  onDelete: (id: string) => void;
-  onMove: (id: string, direction: 'up' | 'down') => void;
+  index: number;
+  reference: string;
+  scriptureText: string;
+  selectedImage?: any;
+  onDelete: () => void;
+  onMove: (direction: 'up' | 'down') => void;
   isFirst: boolean;
   isLast: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState<number | undefined>(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setContentHeight(isExpanded ? contentRef.current.scrollHeight : 0);
+    }
+  }, [isExpanded]);
 
   return (
     <div
       style={{
         backgroundColor: 'var(--color-base-100)',
-        border: '1px solid var(--color-base-300)',
-        padding: '12px',
+        border: '2px solid var(--color-base-300)',
         marginBottom: '8px',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', gap: '8px', marginBottom: isExpanded ? '12px' : '0', alignItems: 'center' }}>
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
+      {/* Header */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          width: '100%',
+          padding: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          backgroundColor: isExpanded ? 'var(--color-base-200)' : 'var(--color-base-200)',
+          border: 'none',
+          cursor: 'pointer',
+          textAlign: 'left',
+          transition: 'background-color 0.2s ease',
+        }}
+      >
+        <span
           style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            padding: '4px 8px'
+            fontSize: '0.875rem',
+            transition: 'transform 0.3s ease',
+            transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '1.25rem',
+            color: 'var(--color-primary)',
           }}
-          title={isExpanded ? 'Collapse' : 'Expand'}
         >
-          {isExpanded ? '▼' : '▶'}
-        </button>
+          <FontAwesomeIcon icon={faChevronRight} />
+        </span>
 
-        <div style={{ flex: 1, fontWeight: 'bold', fontSize: '14px' }}>
-          {slide.reference || 'New Slide'}
+        {selectedImage?.thumbnail_url && (
+          <img
+            src={selectedImage.thumbnail_url}
+            alt={selectedImage.label || 'Scripture slide image'}
+            style={{
+              width: '40px',
+              height: '40px',
+              objectFit: 'cover',
+              border: '1px solid var(--color-base-300)',
+            }}
+          />
+        )}
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
+            {reference || 'New Slide'}
+          </div>
+          {scriptureText && (
+            <div style={{ fontSize: '12px', opacity: 0.7, lineHeight: '1.4' }}>
+              {scriptureText.substring(0, 100)}
+              {scriptureText.length > 100 ? '...' : ''}
+            </div>
+          )}
         </div>
 
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div
+          style={{ display: 'flex', gap: '4px' }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
-            onClick={() => onMove(slide.id, 'up')}
+            type="button"
+            className="btn btn-sm btn-primary"
+            onClick={() => onMove('up')}
             disabled={isFirst}
-            style={{
-              padding: '4px 8px',
-              border: '1px solid var(--color-base-300)',
-              background: 'var(--color-base-100)',
-              cursor: isFirst ? 'not-allowed' : 'pointer',
-              opacity: isFirst ? 0.5 : 1,
-              fontSize: '12px',
-            }}
             title="Move up"
           >
-            ↑
+            <FontAwesomeIcon icon={faArrowUp} />
           </button>
 
           <button
-            onClick={() => onMove(slide.id, 'down')}
+            type="button"
+            className="btn btn-sm btn-primary"
+            onClick={() => onMove('down')}
             disabled={isLast}
-            style={{
-              padding: '4px 8px',
-              border: '1px solid var(--color-base-300)',
-              background: 'var(--color-base-100)',
-              cursor: isLast ? 'not-allowed' : 'pointer',
-              opacity: isLast ? 0.5 : 1,
-              fontSize: '12px',
-            }}
             title="Move down"
           >
-            ↓
+            <FontAwesomeIcon icon={faArrowDown} />
           </button>
 
           <button
-            onClick={() => onDelete(slide.id)}
-            style={{
-              padding: '4px 8px',
-              border: '1px solid var(--color-error)',
-              background: 'var(--color-error)',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '12px',
-            }}
+            type="button"
+            className="btn btn-sm btn-error"
+            onClick={onDelete}
             title="Delete slide"
           >
             Delete
           </button>
         </div>
+      </button>
+
+      {/* Collapsible Content */}
+      <div
+        style={{
+          height: contentHeight,
+          overflow: 'hidden',
+          transition: 'height 0.3s ease',
+        }}
+      >
+        <FormField.Container
+          ref={contentRef}
+          style={{
+            padding: '12px',
+            borderTop: '2px solid var(--color-base-300)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+          }}
+        >
+          <ImageSelector
+            name={`scripture_slides.${index}.selectedImage`}
+          />
+
+          <FormField.Field
+            name={`scripture_slides.${index}.scriptureText`}
+            label="Scripture Text"
+            placeholder="Enter the scripture text..."
+            type="textarea"
+            rows={3}
+          />
+
+          <FormField.Field
+            name={`scripture_slides.${index}.reference`}
+            label="Reference"
+            placeholder="John 3:16"
+          />
+        </FormField.Container>
       </div>
-
-      {isExpanded && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div>
-            <ImageSelector
-              value={slide.selectedImage}
-              onChange={(selected) => {
-                onUpdate(slide.id, {
-                  selectedImage: selected,
-                  record_attachment_id: selected?.value || null
-                });
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-              Scripture Text
-            </label>
-            <textarea
-              value={slide.scriptureText}
-              onChange={(e) => onUpdate(slide.id, { scriptureText: e.target.value })}
-              placeholder="Enter the scripture text..."
-              rows={3}
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid var(--color-base-300)',
-                fontSize: '14px',
-                resize: 'vertical'
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-              Reference
-            </label>
-            <input
-              type="text"
-              value={slide.reference}
-              onChange={(e) => onUpdate(slide.id, { reference: e.target.value })}
-              placeholder="John 3:16"
-              style={{
-                width: '100%',
-                padding: '6px 10px',
-                border: '1px solid var(--color-base-300)',
-                fontSize: '14px'
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export default function ScriptureSlideEditor({
-  slides,
-  onUpdate,
-  onDelete,
-  onAdd,
-  onMove
-}: ScriptureSlideEditorProps) {
-  if (slides.length === 0) {
+export default function ScriptureSlideEditor() {
+  const { control, watch } = useFormContext();
+  const { fields, append, remove, move } = useFieldArray({
+    control,
+    name: "scripture_slides"
+  });
+
+  const addSlide = () => {
+    append({
+      record_attachment_id: null,
+      scriptureText: '',
+      reference: '',
+      selectedImage: null
+    });
+  };
+
+  if (fields.length === 0) {
     return (
       <div style={{ padding: '16px', textAlign: 'center', color: 'var(--color-base-content)' }}>
         <p style={{ marginBottom: '12px', opacity: 0.7 }}>No scripture slides yet</p>
         <button
-          onClick={onAdd}
+          type="button"
+          onClick={addSlide}
           style={{
             padding: '8px 16px',
             border: '1px solid var(--color-primary)',
@@ -190,23 +215,35 @@ export default function ScriptureSlideEditor({
   }
 
   return (
-    <div style={{
-      padding: '8px',
-    }}>
-      {slides.map((slide, index) => (
-        <ScriptureSlideRow
-          key={slide.id}
-          slide={slide}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          onMove={onMove}
-          isFirst={index === 0}
-          isLast={index === slides.length - 1}
-        />
-      ))}
+    <div>
+      {fields.map((field, index) => {
+        const reference = watch(`scripture_slides.${index}.reference`);
+        const scriptureText = watch(`scripture_slides.${index}.scriptureText`);
+        const selectedImage = watch(`scripture_slides.${index}.selectedImage`);
+        return (
+          <ScriptureSlideRow
+            key={`scripture-slide-${index}-${field.id}`}
+            index={index}
+            reference={reference}
+            scriptureText={scriptureText}
+            selectedImage={selectedImage}
+            onDelete={() => remove(index)}
+            onMove={(direction) => {
+              if (direction === 'up' && index > 0) {
+                move(index, index - 1);
+              } else if (direction === 'down' && index < fields.length - 1) {
+                move(index, index + 1);
+              }
+            }}
+            isFirst={index === 0}
+            isLast={index === fields.length - 1}
+          />
+        );
+      })}
 
       <button
-        onClick={onAdd}
+        type="button"
+        onClick={addSlide}
         style={{
           padding: '8px 16px',
           border: '1px solid var(--color-primary)',

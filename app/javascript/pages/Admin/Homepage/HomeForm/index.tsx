@@ -1,454 +1,235 @@
-import { useScriptureSlideEditor, ScriptureSlide } from './useScriptureSlideEditor';
 import ScriptureSlideEditor from './ScriptureSlideEditor';
-import { CollapsibleSection } from './CollapsibleSection';
 import AttachmentGroupSelector from './AttachmentGroupSelector';
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { CollapsibleSection } from './CollapsibleSection';
+import { FormField } from '../../../../components/FormField';
+import { useInertiaForm } from './hooks/useInertiaForm';
 
-interface HomeFormProps {
-  homePageData: any;
-  setHomePageData: (data: any) => void;
-  initialData: any;
+interface HomePageData {
+  top_ribbon: {
+    phone: string;
+    email: string;
+    youtube_url: string;
+    facebook_url: string;
+  };
+  hero_section: {
+    subtitle: string;
+    heading: string;
+    description: string;
+    button_text: string;
+    button_link: string;
+    gallery_group: string;
+    mass_schedule: {
+      weekday: string;
+      sunday: string;
+    };
+    sanctuary_hours: string;
+  };
 }
 
-export default function HomeForm({
-  homePageData,
-  setHomePageData,
-  initialData
-}: HomeFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+interface HomeFormProps {
+  serverData: HomePageData;
+  homePreviewRef: any;
+}
+
+export default function HomeForm({ serverData, homePreviewRef }: HomeFormProps) {
+  const {
+    formMethods,
+    onSubmit,
+    isSubmitting,
+    onCancel
+  } = useInertiaForm({
+    serverData,
+    options: {
+      url: '/admin/homepage',
+      method: 'patch',
+    },
+    routerOptions: {
+      onSuccess: () => {
+        if (!homePreviewRef.current) return
+
+        homePreviewRef.current.refresh()
+      },
+      onFinish: () => {
+        console.log('finished submitting form')
+      }
+    }
+  })
 
   const {
-    slides,
-    addSlide,
-    updateSlide,
-    deleteSlide,
-    moveSlide
-  } = useScriptureSlideEditor(
-    homePageData?.scripture_slides || [],
-    (updatedSlides: ScriptureSlide[]) => {
-      setHomePageData({
-        ...homePageData,
-        scripture_slides: updatedSlides
-      });
-    }
-  );
-
-  const handleSubmit = () => {
-    setIsSubmitting(true);
-
-    router.patch(
-      '/admin/homepage',
-      { data: homePageData },
-      {
-        preserveState: true,
-        onSuccess: () => {
-          console.log('Homepage data saved successfully');
-        },
-        onError: (errors) => {
-          console.error('Failed to save homepage data:', errors);
-        },
-        onFinish: () => {
-          setIsSubmitting(false);
-        }
-      }
-    );
-  };
-
-  const handleCancel = () => {
-    setHomePageData(initialData);
-  };
+    formState: { isDirty }
+  } = formMethods;
 
   return (
-    <div
-      className="shadow-sm"
-      style={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'var(--color-base-100)',
-      }}
-    >
-      <div
+    <FormProvider {...formMethods}>
+      <form
+        onSubmit={onSubmit}
+        className="shadow-sm"
         style={{
           height: '100%',
-          padding: '8px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column'
-        }}
-      >
-        <div style={{
-          flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
-        }}>
-          <CollapsibleSection
-            title="Top Ribbon"
-            description="Configure the contact information and social media links displayed at the top of the page."
-          >
-            <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Address
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.top_ribbon?.address || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    top_ribbon: { ...homePageData?.top_ribbon, address: e.target.value }
-                  })}
-                  placeholder="1520 Av. Ducharme, Outremont, QC H2V 1G1, Canada"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
+          backgroundColor: 'var(--color-base-200)',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            padding: '8px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+          }}>
+            <CollapsibleSection.Container
+              title="Top Ribbon"
+              description="Configure the contact information and social media links displayed at the top of the page."
+            >
+              <FormField.Container>
+                <FormField.Field
+                  name="top_ribbon.address"
+                  label="Address"
+                  registerProps={{ required: false }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.top_ribbon?.phone || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    top_ribbon: { ...homePageData?.top_ribbon, phone: e.target.value }
-                  })}
-                  placeholder="(514) 271-2000"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
+                <FormField.Field
+                  name="top_ribbon.phone"
+                  label="Phone Number"
+                  placeholder="+1 (514) 123-1234"
+                  registerProps={{ required: true }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={homePageData?.top_ribbon?.email || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    top_ribbon: { ...homePageData?.top_ribbon, email: e.target.value }
-                  })}
-                  placeholder="info@dayrna.ca"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
+                <FormField.Field
+                  name="top_ribbon.email"
+                  label="Email"
+                  registerProps={{ required: false }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  YouTube URL
-                </label>
-                <input
-                  type="url"
-                  value={homePageData?.top_ribbon?.youtube_url || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    top_ribbon: { ...homePageData?.top_ribbon, youtube_url: e.target.value }
-                  })}
-                  placeholder="https://youtube.com/@yourchannel"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
+                <FormField.Field
+                  name="top_ribbon.youtube_url"
+                  label="YouTube URL"
+                  registerProps={{ required: false }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Facebook URL
-                </label>
-                <input
-                  type="url"
-                  value={homePageData?.top_ribbon?.facebook_url || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    top_ribbon: { ...homePageData?.top_ribbon, facebook_url: e.target.value }
-                  })}
-                  placeholder="https://facebook.com/yourpage"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
+                <FormField.Field
+                  name="top_ribbon.facebook_url"
+                  label="Facebook URL"
+                  registerProps={{ required: false }}
                 />
-              </div>
-            </div>
-          </CollapsibleSection>
+              </FormField.Container>
+            </CollapsibleSection.Container>
 
-          <CollapsibleSection
-            title="Hero Section"
-            description="Edit the main welcome section with title, description, mass schedule, and sanctuary hours."
-          >
-            <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Subtitle (e.g., "Paroisse et Monastère")
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.hero_section?.subtitle || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, subtitle: e.target.value }
-                  })}
+            <CollapsibleSection.Container
+              title="Scripture Slideshow"
+              description="Manage the rotating scripture slides with background images. These will cycle automatically on the homepage."
+            >
+              <ScriptureSlideEditor />
+            </CollapsibleSection.Container>
+
+            <CollapsibleSection.Container
+              title="Hero Section"
+              description="Edit the main welcome section with title, description, mass schedule, and sanctuary hours."
+            >
+              <FormField.Container>
+                <FormField.Field
+                  name="hero_section.subtitle"
+                  label="Subtitle (e.g., &quot;Paroisse et Monastère&quot;)"
                   placeholder="Paroisse et Monastère"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Main Heading
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.hero_section?.heading || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, heading: e.target.value }
-                  })}
+                <FormField.Field
+                  name="hero_section.heading"
+                  label="Main Heading"
                   placeholder="St. Antoine - Outremont"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Description
-                </label>
-                <textarea
-                  value={homePageData?.hero_section?.description || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, description: e.target.value }
-                  })}
+                <FormField.Field
+                  name="hero_section.description"
+                  label="Description"
                   placeholder="Au service des besoins spirituels et communautaires..."
+                  type="textarea"
                   rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px',
-                    resize: 'vertical'
-                  }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Button Text
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.hero_section?.button_text || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, button_text: e.target.value }
-                  })}
+                <FormField.Field
+                  name="hero_section.button_text"
+                  label="Button Text"
                   placeholder="À propos de nous"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Button Link
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.hero_section?.button_link || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, button_link: e.target.value }
-                  })}
+                <FormField.Field
+                  name="hero_section.button_link"
+                  label="Button Link"
                   placeholder="/about"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
                 />
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Mass Schedule
-                </label>
+                <AttachmentGroupSelector name="hero_section.gallery_group" />
 
-                <div style={{ marginBottom: '8px' }}>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px' }}>
-                    Weekday (Monday-Saturday)
-                  </label>
-                  <input
-                    type="text"
-                    value={homePageData?.hero_section?.mass_schedule?.weekday || ''}
-                    onChange={(e) => setHomePageData({
-                      ...homePageData,
-                      hero_section: {
-                        ...homePageData?.hero_section,
-                        mass_schedule: {
-                          ...homePageData?.hero_section?.mass_schedule,
-                          weekday: e.target.value
-                        }
-                      }
-                    })}
+                <FormField.Section title="Schedule">
+                  <FormField.Field
+                    name="hero_section.mass_schedule.weekday"
+                    label="Weekday (Monday-Saturday)"
                     placeholder="19h00"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid var(--color-base-300)',
-                      fontSize: '14px'
-                    }}
                   />
-                </div>
 
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '13px' }}>
-                    Sunday
-                  </label>
-                  <input
-                    type="text"
-                    value={homePageData?.hero_section?.mass_schedule?.sunday || ''}
-                    onChange={(e) => setHomePageData({
-                      ...homePageData,
-                      hero_section: {
-                        ...homePageData?.hero_section,
-                        mass_schedule: {
-                          ...homePageData?.hero_section?.mass_schedule,
-                          sunday: e.target.value
-                        }
-                      }
-                    })}
+                  <FormField.Field
+                    name="hero_section.mass_schedule.sunday"
+                    label="Sunday"
                     placeholder="10h00, 11h30, 19h00"
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      border: '1px solid var(--color-base-300)',
-                      fontSize: '14px'
-                    }}
                   />
-                </div>
-              </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Sanctuary Hours
-                </label>
-                <input
-                  type="text"
-                  value={homePageData?.hero_section?.sanctuary_hours || ''}
-                  onChange={(e) => setHomePageData({
-                    ...homePageData,
-                    hero_section: { ...homePageData?.hero_section, sanctuary_hours: e.target.value }
-                  })}
-                  placeholder="9h00 - 20h30"
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    border: '1px solid var(--color-base-300)',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '14px' }}>
-                  Gallery Images
-                </label>
-                <AttachmentGroupSelector
-                  value={homePageData?.hero_section?.gallery_group}
-                  onChange={(value) => setHomePageData({
-                    ...homePageData,
-                    hero_section: {
-                      ...homePageData?.hero_section,
-                      gallery_group: value,
-                      gallery_group_id: value?.value
-                    }
-                  })}
-                />
-              </div>
-
-            </div>
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            title="Scripture Slideshow"
-            description="Manage the rotating scripture slides with background images. These will cycle automatically on the homepage."
-          >
-            <div style={{ marginBottom: '12px' }}>
-              <ScriptureSlideEditor
-                slides={slides}
-                onUpdate={updateSlide}
-                onDelete={deleteSlide}
-                onAdd={addSlide}
-                onMove={moveSlide}
-              />
-            </div>
-          </CollapsibleSection>
+                  <FormField.Field
+                    name="hero_section.sanctuary_hours"
+                    label="Sanctuary Hours"
+                    placeholder="9h00 - 20h30"
+                  />
+                </FormField.Section>
+              </FormField.Container>
+            </CollapsibleSection.Container>
+          </div>
         </div>
-      </div>
-      <div style={{ display: 'flex', gap: '8px', padding: '8px', backgroundColor: 'var(--color-neutral)' }}>
-        <button
-          onClick={handleCancel}
-          disabled={isSubmitting}
-          className="btn btn-secondary"
+        <div
           style={{
-            flex: 1,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer'
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '4px',
+            padding: '4px 0',
+            backgroundColor: 'var(--color-base-300)',
+            justifyContent: 'flex-end'
           }}
         >
-          Cancel
-        </button>
-        <button
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="btn btn-primary"
-          style={{
-            flex: 1,
-            opacity: isSubmitting ? 0.6 : 1,
-            cursor: isSubmitting ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {isSubmitting ? 'Saving...' : 'Submit'}
-        </button>
-      </div>
-    </div>
+          {isDirty && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="btn"
+              style={{
+                cursor: isSubmitting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="btn btn-primary"
+            style={{
+              opacity: isSubmitting ? 0.6 : 1,
+              cursor: isSubmitting ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isSubmitting ? 'Saving...' : 'Submit'}
+          </button>
+        </div>
+      </form>
+    </FormProvider>
   )
 }

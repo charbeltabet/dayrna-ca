@@ -2,15 +2,15 @@ import AsyncSelect from 'react-select/async';
 import { debounce } from '../../AttachmentGroups/AttachmentGroupsTable';
 import axios from 'axios';
 import { Link } from '@inertiajs/react';
+import { useFormContext, Controller } from 'react-hook-form';
 
 interface AttachmentGroupSelectorProps {
-  value?: any;
-  onChange?: (value: any) => void;
+  name: string;
 }
 
-export default function AttachmentGroupSelector({ value, onChange }: AttachmentGroupSelectorProps) {
+export default function AttachmentGroupSelector({ name }: AttachmentGroupSelectorProps) {
+  const { control } = useFormContext();
   const loadOptions = debounce(async (inputValue: string, callback: (options: any[]) => void) => {
-    console.log('Searching for groups:', inputValue);
     const response = await axios.get('/admin/attachments/groups/search', {
       params: {
         query: inputValue,
@@ -39,40 +39,70 @@ export default function AttachmentGroupSelector({ value, onChange }: AttachmentG
   };
 
   return (
-    <div>
-      <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '13px' }}>
-        Attachment Group
-      </label>
-      <AsyncSelect
-        cacheOptions
-        loadOptions={loadOptions as any}
-        value={value}
-        onChange={onChange}
-        formatOptionLabel={formatOptionLabel}
-        loadingMessage={() => 'Searching...'}
-        noOptionsMessage={({ inputValue }) =>
-          inputValue ? `No groups found for "${inputValue}"` : 'Type to search'
-        }
-        defaultOptions={true}
-        classNamePrefix="react-select"
-        styles={{
-          control: (styles) => ({
-            ...styles,
-            borderRadius: 0,
-          }),
-          input: (styles) => ({
-            ...styles,
-            cursor: 'text',
-          }),
-          option: (styles) => ({
-            ...styles,
-            cursor: 'pointer',
-          }),
-        }}
-      />
-      <Link href="/admin/attachments/groups" className="link link-primary">
-        Manage or create Attachment Groups
-      </Link>
-    </div>
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <fieldset
+          className="fieldset"
+          style={{
+            padding: 0,
+            display: 'inline-block',
+          }}
+        >
+          <legend
+            className={"fieldset-legend"}
+            style={{
+              paddingTop: 0,
+              paddingBottom: 8,
+            }}
+          >
+            Attachment Group
+          </legend>
+          <AsyncSelect
+            cacheOptions
+            loadOptions={loadOptions as any}
+            value={field.value}
+            onChange={field.onChange}
+            formatOptionLabel={formatOptionLabel}
+            loadingMessage={() => 'Searching...'}
+            noOptionsMessage={({ inputValue }) =>
+              inputValue ? `No groups found for "${inputValue}"` : 'Type to search'
+            }
+            defaultOptions={true}
+            classNamePrefix="react-select"
+            styles={{
+              container: (styles) => ({
+                ...styles,
+                width: 'fit-content',
+                minWidth: '250px',
+              }),
+              control: (styles) => ({
+                ...styles,
+                borderRadius: 0,
+                width: 'auto',
+                backgroundColor: 'var(--color-base-200)',
+                cursor: 'pointer',
+              }),
+              valueContainer: (styles) => ({
+                ...styles,
+                width: 'auto',
+              }),
+              input: (styles) => ({
+                ...styles,
+                cursor: 'text',
+              }),
+              option: (styles) => ({
+                ...styles,
+                cursor: 'pointer',
+              }),
+            }}
+          />
+          <Link href="/admin/attachments/groups" className="link link-primary">
+            Manage or create Attachment Groups
+          </Link>
+        </fieldset>
+      )}
+    />
   )
 }

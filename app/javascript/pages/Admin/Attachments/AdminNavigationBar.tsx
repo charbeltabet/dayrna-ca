@@ -23,7 +23,7 @@ export default function AdminNavigationBar() {
           Administrator
         </div>
         <div className="navbar-center">
-          <ul className="menu bg-base-300 lg:menu-horizontal">
+          <ul className="menu menu-sm bg-base-300 lg:menu-horizontal">
             <li
               className={/^\/admin\/homepage(\/\d+)?$/.test(path) ? "menu-active" : ""}
             >
@@ -35,7 +35,7 @@ export default function AdminNavigationBar() {
               </Link>
             </li>
           </ul>
-          <ul className="menu bg-base-300 lg:menu-horizontal">
+          <ul className="menu menu-sm bg-base-300 lg:menu-horizontal">
             <li
               className={/^\/admin\/navigations(\/\d+)?$/.test(path) ? "menu-active" : ""}
             >
@@ -47,7 +47,7 @@ export default function AdminNavigationBar() {
               </Link>
             </li>
           </ul>
-          <ul className="menu bg-base-300 lg:menu-horizontal">
+          <ul className="menu menu-sm bg-base-300 lg:menu-horizontal">
             <li
               className={/^\/admin\/attachments(\/\d+)?$/.test(path) ? "menu-active" : ""}
             >
@@ -59,7 +59,7 @@ export default function AdminNavigationBar() {
               </Link>
             </li>
           </ul>
-          <ul className="menu bg-base-300 lg:menu-horizontal">
+          <ul className="menu menu-sm bg-base-300 lg:menu-horizontal">
             <li
               className={/^\/admin\/attachments\/groups(\/.*)?$/.test(path) ? "menu-active" : ""}
             >
@@ -71,7 +71,7 @@ export default function AdminNavigationBar() {
               </Link>
             </li>
           </ul>
-          <ul className="menu bg-base-300 lg:menu-horizontal">
+          <ul className="menu menu-sm bg-base-300 lg:menu-horizontal">
             <li
               className={/^\/admin\/announcements(\/.*)?$/.test(path) ? "menu-active" : ""}
             >
@@ -86,7 +86,7 @@ export default function AdminNavigationBar() {
         </div>
         <div className="navbar-end d-flex flex-row gap-2">
           <Link href="/">
-            <button className="btn btn-primary">
+            <button className="btn btn-sm btn-primary">
               Visitor View
               <FontAwesomeIcon icon={faUsers} />
             </button>

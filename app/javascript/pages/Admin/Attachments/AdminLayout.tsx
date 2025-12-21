@@ -13,15 +13,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!flash) return;
 
     Object.entries(flash).forEach(([level, message]) => {
-      if (level === 'success' || level === 'error') {
-        toast.custom((id) => (
-          <Toast
-            id={id}
-            level={level as any}
-            message={message as string}
-          />
-        ))
-      }
+      toast.custom((id) => (
+        <Toast
+          id={`admin-toast-${id}`}
+          level={level as any}
+          message={message as string}
+        />
+      ))
     })
   }, [flash]);
 

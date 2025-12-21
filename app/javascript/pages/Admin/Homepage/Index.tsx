@@ -1,15 +1,14 @@
 import AdminLayout from "../Attachments/AdminLayout";
 import HomePreview from "./HomePreview";
 import HomeForm from "./HomeForm";
-import { useState } from "react";
+import { useRef } from "react";
 
 interface HomepageIndexProps {
   home_page_data: any;
 }
 
 export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
-  const [homePageData, setHomePageData] = useState(home_page_data || {})
-  const [initialData] = useState(home_page_data || {})
+  const homePreviewRef = useRef<HTMLDivElement>(null)
 
   return (
     <AdminLayout>
@@ -25,9 +24,8 @@ export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
           minHeight: '100%',
         }}>
           <HomeForm
-            homePageData={homePageData}
-            setHomePageData={setHomePageData}
-            initialData={initialData}
+            serverData={home_page_data || {}}
+            homePreviewRef={homePreviewRef}
           />
         </div>
         <div
@@ -36,7 +34,9 @@ export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
             width: '50%',
           }}
         >
-          <HomePreview />
+          <HomePreview
+            ref={homePreviewRef}
+          />
         </div>
       </div>
     </AdminLayout>

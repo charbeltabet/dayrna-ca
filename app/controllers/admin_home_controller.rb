@@ -44,7 +44,7 @@ class AdminHomeController < ApplicationController
     data["navigations"] = Navigation.as_nested_tree
     data["root_pages"] = Page.root_pages
 
-    render inertia: "Admin/Homepage/index", props: {
+    render inertia: "Admin/Homepage/Index", props: {
       home_page_data: data
     }
   end
@@ -53,9 +53,13 @@ class AdminHomeController < ApplicationController
     home_page_data = HomePageData.instance
 
     if home_page_data.update(data: homepage_params)
-      redirect_to admin_home_path, notice: "Homepage data updated successfully."
+      redirect_to "/admin/homepage", flash: {
+        success: "Homepage data updated successfully."
+      }
     else
-      redirect_to admin_home_path, alert: "Failed to update homepage data."
+      redirect_to "/admin/homepage", flash: {
+        error: "Failed to update homepage data."
+      }
     end
   end
 

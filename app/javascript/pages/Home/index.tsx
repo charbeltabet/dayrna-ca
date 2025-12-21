@@ -14,7 +14,6 @@ export default function Home({
   homePageData,
   attachment_groups: attachmentGroups
 }: any) {
-  console.log('attachment_groups', attachmentGroups)
   return (
     <HomeContext.Provider value={{ homePageData }}>
       <div
@@ -40,7 +39,6 @@ export default function Home({
           <TimeSection
             announcements={homePageData?.announcements}
           />
-          {/* <OurLadyIconDescription /> */}
           <ReferencesSection />
           <BibleSection />
           <OurLadyIconDescription />

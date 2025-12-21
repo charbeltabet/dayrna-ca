@@ -1,8 +1,14 @@
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faArrowsRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useImperativeHandle } from "react";
 
-export default function HomePreview({ }) {
+interface HomePreviewProps {
+  ref: any
+}
+
+export default function HomePreview({
+  ref
+}: HomePreviewProps) {
   const previewRef = useRef<HTMLDivElement>(null)
   const [targetVirtualWidth, setTargetVirtualWidth] = useState(1360)
   const [previewZoomLevel, setPreviewZoomLevel] = useState(1)
@@ -29,6 +35,23 @@ export default function HomePreview({ }) {
 
     return () => resizeObserver.disconnect()
   }, [targetVirtualWidth])
+
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+
+  function refresh() {
+    const iframe = iframeRef.current
+    if (!iframe) return
+
+    const currentSrc = iframe.src
+    iframe.src = 'about:blank'
+    setTimeout(() => {
+      iframe.src = currentSrc
+    }, 50)
+  }
+
+  useImperativeHandle(ref, () => ({
+    refresh
+  }))
 
   return (
     <div style={{
@@ -63,6 +86,13 @@ export default function HomePreview({ }) {
             {targetVirtualWidth}px
           </div>
         </div>
+        <div className="tooltip tooltip-left" data-tip="Refresh">
+          <FontAwesomeIcon
+            icon={faArrowsRotate}
+            className="cursor-pointer"
+            onClick={refresh}
+          />
+        </div>
       </div>
       <div
         style={{
@@ -76,6 +106,7 @@ export default function HomePreview({ }) {
       >
         <iframe
           src="/"
+          ref={iframeRef}
           style={{
             border: '1px solid var(--color-base-300)',
             width: `${targetVirtualWidth}px`,
