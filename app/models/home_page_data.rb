@@ -27,6 +27,19 @@ class HomePageData < ApplicationRecord
         end
       end
 
+      # Enrich hero section with gallery_group for the form
+      if data["hero_section"].present? && data["hero_section"]["gallery_group_id"].present?
+        group = AttachmentsGroup.find_by(id: data["hero_section"]["gallery_group_id"])
+        if group
+          data["hero_section"]["gallery_group"] = {
+            value: group.id,
+            label: group.title,
+            description: group.description,
+            attachment_count: group.record_attachments.count
+          }
+        end
+      end
+
       data
     end
 

@@ -48,7 +48,7 @@ export default function AdminAttachmentsIndex({
                 href={`/admin/attachments/groups/${group.id}`}
                 preserveState={true}
               >
-                {group.name}
+                {group.title}
               </Link>
             ))
           ) : (

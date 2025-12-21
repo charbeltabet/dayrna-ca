@@ -1,6 +1,6 @@
 import ScriptureSlideEditor from './ScriptureSlideEditor';
 import AttachmentGroupSelector from './AttachmentGroupSelector';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, get } from 'react-hook-form';
 import { CollapsibleSection } from './CollapsibleSection';
 import { FormField } from '../../../../components/FormField';
 import { useInertiaForm } from './hooks/useInertiaForm';
@@ -33,13 +33,22 @@ export default function HomeForm({ serverData, homePreviewRef }: HomeFormProps) 
         console.log('finished submitting form')
       }
     },
-    cleanBeforeSubmit: (data) => (
-      data.scripture_slides.map((slide: any) => ({
+    cleanBeforeSubmit: (data) => {
+      if (!(data.scripture_slides && Array.isArray(data.scripture_slides))) {
+        return data
+      }
+
+      data.scripture_slides = data.scripture_slides.map((slide: any) => ({
         scripture_text: slide.scripture_text,
         reference: slide.reference,
         record_attachment_id: slide.record_attachment_id
-      }))
-    )
+      }));
+
+      data.hero_section.gallery_group_id = get(data, 'hero_section.gallery_group.value', null);
+      delete data.hero_section.gallery_group;
+
+      return data;
+    }
   })
 
   const {

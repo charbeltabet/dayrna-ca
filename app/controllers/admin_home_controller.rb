@@ -43,7 +43,7 @@ class AdminHomeController < ApplicationController
         :description,
         :button_text,
         :button_link,
-        :gallery_group,
+        :gallery_group_id,
         :sanctuary_hours,
         { mass_schedule: [ :weekday, :sunday ] }
       ]
