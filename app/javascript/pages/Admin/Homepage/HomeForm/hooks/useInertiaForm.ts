@@ -21,6 +21,7 @@ type UseInertiaFormOptions<T extends FieldValues> = UseFormProps<T> &
 type UseInertiaFormParams<T extends FieldValues> = {
   key?: string;
   serverData: T;
+  serverErrors?: any;
   options: UseInertiaFormOptions<T>;
   routerOptions?: any;
   onPropChange?: (data: T) => void;
@@ -30,6 +31,7 @@ type UseInertiaFormParams<T extends FieldValues> = {
 export function useInertiaForm<T extends FieldValues>({
   key = 'data',
   serverData,
+  serverErrors,
   options,
   routerOptions,
   onPropChange,
@@ -49,7 +51,11 @@ export function useInertiaForm<T extends FieldValues>({
     ...formOptions,
   });
 
-  const { reset, handleSubmit } = formMethods;
+  const {
+    reset,
+    handleSubmit,
+    setError,
+  } = formMethods;
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,13 +76,15 @@ export function useInertiaForm<T extends FieldValues>({
             [key]: cleanedData
           },
           {
-            onSuccess: () => { },
             ...routerOptions,
             onFinish: () => {
               routerOptions?.onFinish?.();
               setIsSubmitting(false)
-            }
-          }
+            },
+            replace: true,
+            preserveState: true,
+            preserveScroll: true
+          },
         );
       }
     })()
@@ -84,13 +92,22 @@ export function useInertiaForm<T extends FieldValues>({
 
   const onCancel = () => reset(serverData);
 
-  // Server data changes after the request is made
   useEffect(() => {
     reset(serverData);
     if (onPropChange) {
       onPropChange(serverData);
     }
   }, [serverData, reset, onPropChange]);
+
+  useEffect(() => {
+    Object.entries(serverErrors || {}).forEach(([field, messages]) => {
+      setError(field as any, {
+        type: 'manual',
+        message: (messages as string[]).join(' ')
+      });
+    });
+  }, [serverErrors, setError]);
+
 
   return {
     formMethods,

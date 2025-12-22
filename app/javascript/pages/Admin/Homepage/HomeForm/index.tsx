@@ -7,18 +7,24 @@ import { useInertiaForm } from './hooks/useInertiaForm';
 
 interface HomeFormProps {
   serverData: any;
+  serverErrors?: any;
   homePreviewRef: any;
 }
 
-export default function HomeForm({ serverData, homePreviewRef }: HomeFormProps) {
+export default function HomeForm({
+  serverData,
+  serverErrors,
+  homePreviewRef
+}: HomeFormProps) {
   const {
     formMethods,
     onSubmit,
     isSubmitting,
     onCancel
   } = useInertiaForm({
-    key: 'homepage',
+    key: 'home_page',
     serverData,
+    serverErrors,
     options: {
       url: '/admin/homepage',
       method: 'patch',

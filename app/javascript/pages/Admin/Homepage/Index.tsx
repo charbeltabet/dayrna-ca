@@ -5,9 +5,10 @@ import { useRef } from "react";
 
 interface HomepageIndexProps {
   home_page_data: any;
+  home_page_errors: any;
 }
 
-export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
+export default function HomepageIndex({ home_page_data, home_page_errors }: HomepageIndexProps) {
   const homePreviewRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -25,6 +26,7 @@ export default function HomepageIndex({ home_page_data }: HomepageIndexProps) {
         }}>
           <HomeForm
             serverData={home_page_data || {}}
+            serverErrors={home_page_errors || {}}
             homePreviewRef={homePreviewRef}
           />
         </div>

@@ -89,10 +89,16 @@ const Field = ({
           )}
           style={{
             backgroundColor: 'var(--color-base-200)',
+            color: error ? 'var(--color-error)' : 'inherit'
           }}
         />
       )}
-      <p className="label">{hint}</p>
+      {hint && (
+        <p className="label">{hint}</p>
+      )}
+      {error && (
+        <p className="text-error">{error.message}</p>
+      )}
     </fieldset>
   )
 }
