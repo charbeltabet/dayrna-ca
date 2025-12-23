@@ -1,6 +1,6 @@
 class AdminHomeController < ApplicationController
   def index
-    data = HomePageData.home_form_data
+    data = HomePageData.instance.home_form_data
 
     render inertia: "Admin/Homepage/Index", props: {
       home_page_data: data

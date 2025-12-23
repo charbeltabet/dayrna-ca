@@ -210,7 +210,6 @@ export default function AttachmentsTable({
         overflowX: 'hidden',
         overflowY: 'scroll',
         height: '100%',
-        border: '1px solid #ddd',
         position: 'relative'
       }}
     >
@@ -372,14 +371,13 @@ export default function AttachmentsTable({
       <div style={{
         overflowX: 'scroll',
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', borderCollapse: 'separate' }}>
           <thead style={{ position: 'sticky', top: 0, zIndex: 20 }}>
             <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
               {/* Select all checkbox */}
               <th style={{
                 width: '50px',
                 padding: '12px',
-                borderRight: '2px solid #ddd',
                 textAlign: 'center',
                 position: 'sticky',
                 left: 0,
@@ -407,7 +405,6 @@ export default function AttachmentsTable({
                   key={header.name}
                   style={{
                     padding: '12px',
-                    borderRight: '1px solid #ddd',
                     textAlign: 'left',
                     fontWeight: 'bold',
                     ...header.headerStyles
@@ -465,7 +462,6 @@ export default function AttachmentsTable({
                   right: 0,
                   backgroundColor: '#f5f5f5',
                   zIndex: 30,
-                  borderLeft: '2px solid #ddd',
                   boxShadow: '-2px 0 4px rgba(0,0,0,0.1)'
                 }}>
                   Actions
@@ -527,7 +523,7 @@ export default function AttachmentsTable({
                   {/* Row checkbox */}
                   <td style={{
                     padding: '12px',
-                    borderRight: '2px solid #ddd',
+                    // borderRight: '2px solid #ddd',
                     textAlign: 'center',
                     position: 'sticky',
                     left: 0,
@@ -550,9 +546,10 @@ export default function AttachmentsTable({
                   {headers.map((header) => (
                     <td key={header.name} style={{
                       padding: '4px 4px',
-                      borderRight: '1px solid #ddd',
+                      // borderRight: '1px solid #ddd',
                       display: 'table-cell',
                       verticalAlign: 'top',
+                      height: '100%'
                     }}>
                       {header.renderCell ? header.renderCell(row) : row[header.name]}
                     </td>
@@ -567,7 +564,6 @@ export default function AttachmentsTable({
                       right: 0,
                       backgroundColor: isSelected ? '#e0d4fc' : (index % 2 === 0 ? '#fff' : '#fafafa'),
                       zIndex: 9,
-                      borderLeft: '2px solid #ddd',
                       boxShadow: '-2px 0 4px rgba(0,0,0,0.1)'
                     }}>
                       {headers.find(h => h.renderCellActions)?.renderCellActions && (

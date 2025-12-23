@@ -48,7 +48,7 @@ export default function AdminAttachmentsIndex({
                 href={`/admin/attachments/groups/${group.id}`}
                 preserveState={true}
               >
-                {group.title}
+                {group.name}
               </Link>
             ))
           ) : (
@@ -132,9 +132,10 @@ export default function AdminAttachmentsIndex({
       renderCell: (row: any) => (
         <div style={{
           width: '200px',
-          overflow: 'hidden',
-          whiteSpace: 'normal',
-          wordBreak: 'break-word',
+          overflow: 'scroll',
+          maxHeight: '40px',
+          minHeight: '40px',
+          backgroundColor: 'red'
         }}>
           {truncateText(row.description, 100)}
         </div>
@@ -147,29 +148,23 @@ export default function AdminAttachmentsIndex({
       renderCellActions: (row: any) => (
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'row',
           gap: '4px',
         }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '4px',
-          }}>
-            <Link
-              className="btn btn-sm btn-info"
-              href={`/admin/attachments/${row.id}`}
-              preserveState={true}
-              only={['previewed_attachment']}
-            >
-              Edit
-            </Link>
-            <a
-              className="btn btn-sm btn-error"
-              onClick={() => handleDelete(row.id, row.filename)}
-            >
-              Delete
-            </a>
-          </div>
+          <Link
+            className="btn btn-sm btn-info"
+            href={`/admin/attachments/${row.id}`}
+            preserveState={true}
+            only={['previewed_attachment']}
+          >
+            Edit
+          </Link>
+          <a
+            className="btn btn-sm btn-error"
+            onClick={() => handleDelete(row.id, row.filename)}
+          >
+            Delete
+          </a>
           <a
             className="btn btn-sm btn-primary"
             style={{ cursor: 'pointer' }}
@@ -195,6 +190,7 @@ export default function AdminAttachmentsIndex({
         <div style={{
           flex: 1,
           overflowX: 'hidden',
+          backgroundColor: '#ddd'
         }}>
           <AttachmentsTable
             headers={headers}

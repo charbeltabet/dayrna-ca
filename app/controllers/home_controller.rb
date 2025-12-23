@@ -2,7 +2,7 @@
 
 class HomeController < ApplicationController
   def index
-    data = HomePageData.home_component_data
+    data = HomePageData.instance.home_component_data
 
     meta, attachments = paginate(RecordAttachment.order(created_at: :desc))
     attachment_groups = AttachmentsGroup.all
