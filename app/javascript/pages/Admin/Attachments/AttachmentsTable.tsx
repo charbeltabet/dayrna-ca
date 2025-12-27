@@ -545,17 +545,12 @@ export default function AttachmentsTable({
                   {/* Data cells */}
                   {headers.map((header) => (
                     <td key={header.name} style={{
-                      // padding: '4px 4px',
-                      // borderRight: '1px solid #ddd',
-                      display: 'table-cell',
+                      padding: 0,
                       verticalAlign: 'top',
-                      maxHeight: '0px',
-                      overflow: 'scroll'
-                      // height: '100%'
                     }}>
                       <div style={{
-                        maxHeight: '0px',
-                        height: '100%',
+                        maxHeight: '50px',
+                        overflowY: 'scroll',
                         padding: '2px'
                       }}>
                         {header.renderCell ? header.renderCell(row) : row[header.name]}
