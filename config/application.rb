@@ -26,5 +26,6 @@ module DayrnaCa
 
     # Raise an error when unpermitted parameters are encountered
     config.action_controller.action_on_unpermitted_parameters = :raise
+    config.wrap_parameters = false
   end
 end

@@ -42,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             flexDirection: 'column',
             gap: '4px',
             height: 'calc(100vh - 64px)',
-            overflowY: 'hidden',
+            overflowY: 'scroll',
             backgroundColor: 'var(--color-base-300)'
           }}
         >

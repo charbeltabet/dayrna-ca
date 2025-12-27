@@ -1,4 +1,3 @@
-// hooks/useInertiaForm.ts
 import { useForm, UseFormProps, FieldValues } from 'react-hook-form';
 import { router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
@@ -76,14 +75,14 @@ export function useInertiaForm<T extends FieldValues>({
             [key]: cleanedData
           },
           {
+            replace: true,
+            preserveState: true,
+            preserveScroll: true,
             ...routerOptions,
             onFinish: () => {
               routerOptions?.onFinish?.();
               setIsSubmitting(false)
             },
-            replace: true,
-            preserveState: true,
-            preserveScroll: true
           },
         );
       }
@@ -94,10 +93,11 @@ export function useInertiaForm<T extends FieldValues>({
 
   useEffect(() => {
     reset(serverData);
+
     if (onPropChange) {
       onPropChange(serverData);
     }
-  }, [serverData, reset, onPropChange]);
+  }, [JSON.stringify(serverData), reset]);
 
   useEffect(() => {
     Object.entries(serverErrors || {}).forEach(([field, messages]) => {
@@ -107,7 +107,6 @@ export function useInertiaForm<T extends FieldValues>({
       });
     });
   }, [serverErrors, setError]);
-
 
   return {
     formMethods,

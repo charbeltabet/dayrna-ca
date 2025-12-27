@@ -1,4 +1,6 @@
 class RecordAttachment < ApplicationRecord
+  include Fetchable
+
   has_one_attached :file
   has_many :attachment_group_memberships, dependent: :destroy
   has_many :attachments_groups, through: :attachment_group_memberships
@@ -9,29 +11,13 @@ class RecordAttachment < ApplicationRecord
 
   before_save :cache_file_metadata
 
-  class RecordAttachmentRelation < ActiveRecord::Relation
-    def total_byte_size
-      # Sum byte_size from all blobs in the collection
-      sum { |record| record.cached_file_size.to_i }
-    end
+  scope :total_byte_size, -> {
+    sum { |record| record.cached_file_size.to_i }
+  }
 
-    def human_readable_total_size
-      ActiveSupport::NumberHelper.number_to_human_size(total_byte_size)
-    end
-  end
-
-  class << self
-    def search(query)
-      joins(file_attachment: :blob).where(
-        "record_attachments.title ILIKE :q OR active_storage_blobs.filename ILIKE :q OR record_attachments.description ILIKE :q",
-        q: "%#{query}%"
-      )
-    end
-  end
-
-  def self.relation
-    RecordAttachmentRelation.new(self)
-  end
+  scope :human_readable_total_size, -> {
+    ActiveSupport::NumberHelper.number_to_human_size(total_byte_size)
+  }
 
   def content_type
     file.blob&.content_type if file.attached?

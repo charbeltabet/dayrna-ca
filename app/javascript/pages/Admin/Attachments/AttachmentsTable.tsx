@@ -20,8 +20,14 @@ function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T 
 }
 
 // Debounced router visit with 300ms delay
-const debouncedRouterVisit = debounce((path: string, options: any) => {
-  router.visit(path, options);
+const debounceQueryVisit = debounce((query: string) => {
+  router.visit('', {
+    data: {
+      query
+    },
+    preserveState: true,
+    preserveScroll: true
+  })
 }, 300);
 
 interface Header {
@@ -43,9 +49,10 @@ interface AttachmentsTableProps {
   mode?: 'attachments' | 'group-attachments';
   groupId?: number;
   onlyParam?: string;
-  queryParam?: string;
   title?: string;
   searchKbd?: string;
+  sortColumn?: string | null;
+  sortDirection?: 'asc' | 'desc' | null;
 }
 
 export default function AttachmentsTable({
@@ -59,39 +66,22 @@ export default function AttachmentsTable({
   mode = 'attachments',
   groupId,
   onlyParam = 'attachments',
-  queryParam = 'query',
   title = 'Attachments',
-  searchKbd = '/'
+  searchKbd = '/',
+  sortColumn: initialSortColumn = null,
+  sortDirection: initialSortDirection = null
 }: AttachmentsTableProps) {
   const [selectedRows, setSelectedRows] = useState<any[]>([]);
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
+  const [sortColumn, setSortColumn] = useState<string | null>(initialSortColumn);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(initialSortDirection);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync local search query with prop
+  // Sync sort state with props
   useEffect(() => {
-    setLocalSearchQuery(searchQuery || '');
-  }, [searchQuery]);
-
-  // Handle search with debounced navigation
-  const handleSearch = (query: string) => {
-    setLocalSearchQuery(query);
-
-    if (typeof window === 'undefined') return;
-
-    const url = new URL(window.location.href);
-    if (query) {
-      url.searchParams.set(queryParam, query);
-    } else {
-      url.searchParams.delete(queryParam);
-    }
-
-    debouncedRouterVisit(url.pathname + url.search, {
-      preserveState: true,
-      only: [onlyParam]
-    });
-  };
+    setSortColumn(initialSortColumn);
+    setSortDirection(initialSortDirection);
+  }, [initialSortColumn, initialSortDirection]);
 
   // Handle searchKbd key press to focus search input and Escape to blur
   useEffect(() => {
@@ -205,10 +195,9 @@ export default function AttachmentsTable({
 
   return (
     <div
-      className="hidden-scrollbar"
       style={{
-        overflowX: 'hidden',
-        overflowY: 'scroll',
+        display: 'flex',
+        flexDirection: 'column',
         height: '100%',
         position: 'relative'
       }}
@@ -266,7 +255,7 @@ export default function AttachmentsTable({
               preserveState={true}
             >
               <button
-                className="btn btn-primary"
+                className="btn btn-sm btn-primary"
               >
                 Groups
               </button>
@@ -279,7 +268,7 @@ export default function AttachmentsTable({
               only={['previewed_attachment']}
             >
               <button
-                className="btn btn-primary"
+                className="btn btn-sm btn-primary"
               >
                 New
               </button>
@@ -293,22 +282,25 @@ export default function AttachmentsTable({
           backgroundColor: 'white',
           borderBottom: '1px solid #ddd',
         }}>
-          <label className="input">
+          <label className="input input-sm">
             <FontAwesomeIcon icon={faSearch} />
             <input
               type="search"
-              className="grow"
               placeholder="Search"
               ref={searchInputRef}
               value={localSearchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={(e) => {
+                const newQuery = e.target.value;
+                setLocalSearchQuery(newQuery);
+                debounceQueryVisit(newQuery);
+              }}
             />
             <kbd className="kbd kbd-sm">{searchKbd}</kbd>
           </label>
         </div>
       ) : (
         <div style={{
-          padding: '4px 12px',
+          padding: '4px 8px',
           backgroundColor: '#f0f0f0',
           borderBottom: '1px solid #ddd',
           display: 'flex',
@@ -337,9 +329,9 @@ export default function AttachmentsTable({
           ) : (
             <>
               <button
-                className="btn"
+                className="btn btn-sm"
                 onClick={() => {
-                  const urls = selectedRows.map(row => row.url).join('\n');
+                  const urls = selectedRows.map(row => row.public_url).join('\n');
                   navigator.clipboard.writeText(urls).then(() => {
                     alert('URLs copied to clipboard!');
                   }).catch((err) => {
@@ -351,7 +343,7 @@ export default function AttachmentsTable({
                 Copy URLs
               </button>
               <button
-                className="btn btn-error"
+                className="btn btn-sm btn-error"
                 onClick={() => handleBulkDelete(selectedRows)}
               >
                 Delete
@@ -359,7 +351,7 @@ export default function AttachmentsTable({
             </>
           )}
           <button
-            className="btn btn-primary"
+            className="btn btn-sm btn-primary"
             onClick={() => {
               setSelectedRows([]);
             }}
@@ -368,12 +360,21 @@ export default function AttachmentsTable({
           </button>
         </div>
       )}
-      <div style={{
-        overflowX: 'scroll',
-      }}>
+      <div
+        className="hidden-scrollbar"
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'auto',
+          minHeight: 0
+        }}
+      >
         <table style={{ width: '100%', borderCollapse: 'separate' }}>
           <thead style={{ position: 'sticky', top: 0, zIndex: 20 }}>
-            <tr style={{ backgroundColor: '#f5f5f5', borderBottom: '2px solid #ddd' }}>
+            <tr style={{
+              backgroundColor: '#f5f5f5',
+              borderBottom: '2px solid #ddd',
+            }}>
               {/* Select all checkbox */}
               <th style={{
                 width: '50px',
@@ -486,11 +487,10 @@ export default function AttachmentsTable({
 
               return (
                 <tr
-                  key={row.id}
+                  key={`table-row-${row.id}`}
                   style={{
                     backgroundColor: rowBackgroundColor,
-                    borderBottom: '1px solid #ddd'
-
+                    borderBottom: '1px solid #ddd',
                   }}
                   onMouseEnter={(e) => {
                     if (isHighlighted) return;
@@ -545,26 +545,34 @@ export default function AttachmentsTable({
                   {/* Data cells */}
                   {headers.map((header) => (
                     <td key={header.name} style={{
-                      padding: '4px 4px',
+                      // padding: '4px 4px',
                       // borderRight: '1px solid #ddd',
                       display: 'table-cell',
                       verticalAlign: 'top',
-                      height: '100%'
+                      maxHeight: '0px',
+                      overflow: 'scroll'
+                      // height: '100%'
                     }}>
-                      {header.renderCell ? header.renderCell(row) : row[header.name]}
+                      <div style={{
+                        maxHeight: '0px',
+                        height: '100%',
+                        padding: '2px'
+                      }}>
+                        {header.renderCell ? header.renderCell(row) : row[header.name]}
+                      </div>
                     </td>
                   ))}
 
                   {/* Actions dropdown */}
                   {headers.some(h => h.renderCellActions) && (
                     <td style={{
-                      padding: '12px',
+                      padding: '8px 4px',
                       textAlign: 'center',
                       position: 'sticky',
                       right: 0,
-                      backgroundColor: isSelected ? '#e0d4fc' : (index % 2 === 0 ? '#fff' : '#fafafa'),
+                      backgroundColor: rowBackgroundColor,
                       zIndex: 9,
-                      boxShadow: '-2px 0 4px rgba(0,0,0,0.1)'
+                      boxShadow: '-2px 0 4px rgba(0,0,0,0.1)',
                     }}>
                       {headers.find(h => h.renderCellActions)?.renderCellActions && (
                         <div style={{ position: 'relative', zIndex: 100 }}>

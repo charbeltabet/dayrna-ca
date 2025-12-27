@@ -3,7 +3,7 @@ import AttachmentGroupSelector from './AttachmentGroupSelector';
 import { FormProvider, get } from 'react-hook-form';
 import { CollapsibleSection } from './CollapsibleSection';
 import { FormField } from '../../../../components/FormField';
-import { useInertiaForm } from './hooks/useInertiaForm';
+import { useInertiaForm } from '../../../../hooks/useInertiaForm';
 
 interface HomeFormProps {
   serverData: any;

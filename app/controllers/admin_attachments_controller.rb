@@ -2,57 +2,61 @@ class AdminAttachmentsController < ApplicationController
   def index
     render inertia: "Admin/Attachments/Index", props: {
       attachments: -> {
-        records = RecordAttachment.order(created_at: :desc)
+        fields = params[:fields]
+        search_fields = [ "title", "description" ]
+        order_by = params[:order_by]
+        order = params[:order]
+        query = params[:query]
+        offset = params[:offset]
+        limit = params[:limit]
 
-        # Apply search filter if query parameter is present
-        if params[:query].present?
-          query = params[:query].strip
-          records = records.joins(file_attachment: :blob).where(
-            "title LIKE ? OR description LIKE ? OR active_storage_blobs.filename LIKE ?",
-            "%#{query}%",
-            "%#{query}%",
-            "%#{query}%"
-          )
-        end
+        records = RecordAttachment.all
+
+        filtered_records = records.fetch_records({
+          fields: fields,
+          search_fields: search_fields,
+          order_by: order_by,
+          order: order,
+          query: query,
+          offset: offset,
+          limit: limit
+        })
+
+        data = filtered_records.as_json(
+          methods: [
+            :filename,
+            :content_type,
+            :human_readable_size,
+            :public_url
+          ]
+        )
 
         {
-          data: records.map do |record|
-            {
-              id: record.id,
-              filename: record.filename.to_s,
-              url: record.public_url,
-              human_readable_size: record.human_readable_size,
-              title: record.title,
-              description: record.description,
-              created_at: record.created_at.strftime("%Y-%m-%d %H:%M"),
-              updated_at: record.updated_at.strftime("%Y-%m-%d %H:%M"),
-              groups: record.attachments_groups.map { |group| { id: group.id, name: group.title } }
-            }
-          end,
-          count: records.count,
-          byte_size: records.human_readable_total_size
+          data: data,
+          metadata: {
+            order: order,
+            order_by: order_by,
+            total: records.count,
+            byte_size: records.human_readable_total_size,
+            query: query
+          }
         }
       },
-      query: params[:query],
       previewed_attachment: -> {
-        if params[:id].present?
-          record = RecordAttachment.find_by(id: params[:id])
-          return if record.nil?
+        return unless params[:id]
 
-          {
-            id: record.id,
-            filename: record.filename.to_s,
-            url: record.public_url,
-            human_readable_size: record.human_readable_size,
-            title: record.title,
-            description: record.description,
-            created_at: record.created_at.strftime("%Y-%m-%d %H:%M"),
-            updated_at: record.updated_at.strftime("%Y-%m-%d %H:%M"),
-            groups: record.attachments_groups.map { |group| { id: group.id, name: group.title } }
-          }
-        else
-          nil
-        end
+        record = RecordAttachment.find(params[:id])
+        record.as_json(
+          methods: [
+            :filename,
+            :content_type,
+            :human_readable_size,
+            :public_url
+          ],
+          include: {
+            attachments_groups: { only: [ :id, :title ] }
+          },
+        )
       },
       all_groups: -> {
         AttachmentsGroup.order(:title).map { |group| { id: group.id, title: group.title } }
@@ -144,8 +148,15 @@ class AdminAttachmentsController < ApplicationController
   def update
     record = RecordAttachment.find(params[:id])
 
-    update_params = params.permit(:title, :description).to_h.compact
-    record.update!(update_params) if update_params.any?
+    update_params = params
+      .require(:admin_attachments)
+      .permit(
+        :title,
+        :description,
+        :filename,
+        group_ids: {}
+      )
+    record.update!(update_params.except("group_ids", "filename"))
 
     if params[:file].present?
       file = params[:file]
