@@ -28,6 +28,9 @@ class AdminAttachmentsController < ApplicationController
             :content_type,
             :human_readable_size,
             :public_url
+          ],
+          include: [
+            :attachments_groups
           ]
         )
 
@@ -54,12 +57,13 @@ class AdminAttachmentsController < ApplicationController
             :public_url
           ],
           include: {
-            attachments_groups: { only: [ :id, :title ] }
+            attachments_groups: {
+              methods: [
+                :option
+              ]
+            }
           },
         )
-      },
-      all_groups: -> {
-        AttachmentsGroup.order(:title).map { |group| { id: group.id, title: group.title } }
       }
     }
   end
@@ -71,12 +75,9 @@ class AdminAttachmentsController < ApplicationController
 
     attachments_params.each do |index, attachment_data|
       file = attachment_data[:file]
-      filename = attachment_data[:filename]
       title = attachment_data[:title]
       description = attachment_data[:description]
       group_ids = attachment_data[:group_ids] # Get group_ids from attachment data
-
-      sanitized_filename = sanitize_filename(filename.presence || file.original_filename)
 
       record = RecordAttachment.new(
         title: title,
@@ -87,7 +88,7 @@ class AdminAttachmentsController < ApplicationController
       record.save!
 
       # Now attach the file with custom key using the record's ID
-      attach_file_to_record(record, file, sanitized_filename)
+      record.attach_file(file)
       record.save! # Save again to persist the attachment
 
       uploaded_records << record
@@ -146,57 +147,16 @@ class AdminAttachmentsController < ApplicationController
   end
 
   def update
-    record = RecordAttachment.find(params[:id])
+    record_attachment = RecordAttachment.find(params[:id])
+    record_attachment.update!(update_attributes)
 
-    update_params = params
-      .require(:admin_attachments)
-      .permit(
-        :title,
-        :description,
-        :filename,
-        group_ids: {}
-      )
-    record.update!(update_params.except("group_ids", "filename"))
+    file = update_params[:file]
+    record_attachment.attach_file(file) if file
 
-    if params[:file].present?
-      file = params[:file]
-      sanitized_filename = sanitize_filename(params[:filename].presence || file.original_filename)
+    attachments_groups_ids = update_params[:attachments_groups_ids]
+    record_attachment.associate_to_attachment_groups(attachments_groups_ids) if attachments_groups_ids
 
-      # Purge old attachment before attaching new one to avoid duplicate key constraint
-      if record.file.attached?
-        record.file.purge
-      end
-
-      attach_file_to_record(record, file, sanitized_filename)
-      record.save!
-    elsif params[:filename].present?
-      sanitized_filename = sanitize_filename(params[:filename])
-      record.file.blob.update!(filename: sanitized_filename) if record.file.attached?
-    end
-
-    group_ids = params[:group_ids]&.values
-
-    if group_ids
-      group_ids = group_ids.reject(&:blank?)
-
-      record.attachment_group_memberships.destroy_all
-
-      group_ids.each do |group_id|
-        # Verify the group exists before creating membership
-        if AttachmentsGroup.exists?(group_id)
-          AttachmentGroupMembership.create!(
-            record_attachment_id: record.id,
-            attachments_group_id: group_id
-          )
-        else
-          Rails.logger.warn "Attempted to associate with non-existent group: #{group_id}"
-        end
-      end
-    else
-      record.attachment_group_memberships.destroy_all
-    end
-
-    redirect_to "/admin/attachments/#{record.id}", flash: { success: "Attachment #{record.filename} updated successfully." }
+    redirect_to "/admin/attachments/#{record_attachment.id}", flash: { success: "Attachment #{record_attachment.filename} updated successfully." }
   rescue ActiveRecord::RecordInvalid => e
     Rails.logger.error "Validation error updating attachment: #{e.message}"
     redirect_to "/admin/attachments/#{params[:id]}", flash: { error: e.message }
@@ -503,19 +463,22 @@ class AdminAttachmentsController < ApplicationController
 
   private
 
-  def sanitize_filename(filename)
-    filename.to_s.gsub(" ", "_")
+  def update_params
+    params
+      .require(:admin_attachments)
+      .permit(
+        :id,
+        :title,
+        :description,
+        :file,
+        attachments_groups_ids: []
+      )
   end
 
-  def attach_file_to_record(record, uploaded_file, filename)
-    # Generate custom key: attachments/{id}/{filename}
-    custom_key = "attachments/#{record.id}/#{filename}"
-
-    record.file.attach(
-      io: uploaded_file.tempfile,
-      filename: filename,
-      content_type: uploaded_file.content_type,
-      key: custom_key
+  def update_attributes
+    update_params.slice(
+      :title,
+      :description,
     )
   end
 end

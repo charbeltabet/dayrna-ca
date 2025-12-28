@@ -7,10 +7,7 @@ import AttachmentsTableDisplay from "./AttachmentsTableDisplay";
 export default function AdminAttachmentsIndex({
   attachments,
   'previewed_attachment': previewedAttachment,
-  'all_groups': allGroups,
 }: any) {
-  console.log('previewed_attachment', previewedAttachment)
-
   const { screenLargerThan } = useScreenSize()
 
   return (
@@ -39,12 +36,12 @@ export default function AdminAttachmentsIndex({
         }}>
           {previewedAttachment ? (
             <AttachmentPreview
-              attachmentRow={previewedAttachment}
-              allGroups={allGroups || []}
+              serverData={previewedAttachment}
               key={`attachment-preview-${previewedAttachment.id}`}
             />
           ) : (
-            <NewAttachmentForm allGroups={allGroups || []} />
+            <NewAttachmentForm
+            />
           )}
         </div>
       </div>

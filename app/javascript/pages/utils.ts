@@ -7,6 +7,7 @@ export function truncateText(text: string, maxLength: number): string {
 
 // conserve the extension
 export function truncateFilename(filename: string, maxLength: number): string {
+  if (!filename) return '';
   if (filename.length <= maxLength) {
     return filename;
   }

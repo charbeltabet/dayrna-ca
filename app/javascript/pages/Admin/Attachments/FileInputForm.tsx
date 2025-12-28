@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import AttachmentGroupsSelect from "./AttachmentGroupsSelect";
 
 interface FileInputFormProps {
   file: File;
@@ -122,11 +121,11 @@ export default function FileInputForm({
             </div>
 
             <div style={{ fontSize: '12px' }}>
-              <AttachmentGroupsSelect
+              {/* <AttachmentGroupsSelect
                 selectedGroupIds={group_ids}
                 groups={allGroups}
                 onChange={(groupIds) => onChange('group_ids', groupIds)}
-              />
+              /> */}
             </div>
           </div>
         </div>

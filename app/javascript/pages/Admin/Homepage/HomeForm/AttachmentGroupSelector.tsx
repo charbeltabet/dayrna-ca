@@ -6,9 +6,13 @@ import { useFormContext, Controller } from 'react-hook-form';
 
 interface AttachmentGroupSelectorProps {
   name: string;
+  isMulti?: boolean;
 }
 
-export default function AttachmentGroupSelector({ name }: AttachmentGroupSelectorProps) {
+export default function AttachmentGroupSelector({
+  name,
+  isMulti = false,
+}: AttachmentGroupSelectorProps) {
   const { control } = useFormContext();
   const loadOptions = debounce(async (inputValue: string, callback: (options: any[]) => void) => {
     const response = await axios.get('/admin/attachments/groups/search', {
@@ -54,7 +58,7 @@ export default function AttachmentGroupSelector({ name }: AttachmentGroupSelecto
             className={"fieldset-legend"}
             style={{
               paddingTop: 0,
-              paddingBottom: 8,
+              paddingBottom: 4,
             }}
           >
             Attachment Group
@@ -71,11 +75,12 @@ export default function AttachmentGroupSelector({ name }: AttachmentGroupSelecto
             }
             defaultOptions={true}
             classNamePrefix="react-select"
+            isMulti={isMulti}
             styles={{
               container: (styles) => ({
                 ...styles,
                 width: 'fit-content',
-                minWidth: '250px',
+                minWidth: '325px',
               }),
               control: (styles) => ({
                 ...styles,

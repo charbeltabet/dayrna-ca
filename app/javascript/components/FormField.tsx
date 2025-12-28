@@ -32,6 +32,7 @@ interface FieldProps {
   placeholder?: string;
   hint?: string;
   registerProps?: RegisterOptions;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement>;
   type?: 'text' | 'textarea';
   rows?: number;
 }
@@ -42,6 +43,7 @@ const Field = ({
   placeholder = '',
   hint = '',
   registerProps = {},
+  inputProps = {},
   type = 'text',
   rows = 3
 }: FieldProps) => {
@@ -79,6 +81,7 @@ const Field = ({
             backgroundColor: 'var(--color-base-200)',
             resize: 'vertical'
           }}
+          {...inputProps}
         />
       ) : (
         <input
@@ -93,6 +96,7 @@ const Field = ({
             backgroundColor: 'var(--color-base-200)',
             color: error ? 'var(--color-error)' : 'inherit'
           }}
+          {...inputProps}
         />
       )}
       {hint && (
@@ -159,7 +163,7 @@ const FileInput = ({
       </legend>
       <input
         type="file"
-        className={clsx("file-input file-input-bordered", hasError && "input-error")}
+        className={clsx("file-input file-input-bordered file-input-sm", hasError && "input-error")}
         {...register(name, registerProps)}
       />
       {hint && (

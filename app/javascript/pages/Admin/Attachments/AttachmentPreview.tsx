@@ -1,25 +1,25 @@
 import { useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDeleteLeft, faLink } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faDeleteLeft, faLink } from "@fortawesome/free-solid-svg-icons";
 import { handleDelete } from "./AttachmentsTableDisplay";
 import { FormField } from "../../../components/FormField";
 import { useInertiaForm } from "../../../hooks/useInertiaForm";
+import { truncateFilename } from "../../utils";
+import AttachmentGroupSelector from "../Homepage/HomeForm/AttachmentGroupSelector";
 
 interface AttachmentPreviewProps {
-  attachmentRow: any;
-  allGroups: Array<{ id: number; title: string }>;
+  serverData: any;
 }
 
 export default function AttachmentPreview({
-  attachmentRow,
-  allGroups,
+  serverData,
 }: AttachmentPreviewProps) {
   const [linkCopied, setLinkCopied] = useState(false);
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(attachmentRow.public_url);
+      await navigator.clipboard.writeText(serverData.public_url);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch (err) {
@@ -31,19 +31,19 @@ export default function AttachmentPreview({
     formMethods,
     onSubmit,
     isSubmitting,
-    onCancel
+    onCancel,
   } = useInertiaForm({
     key: 'admin_attachments',
     serverData: {
-      title: attachmentRow.title || '',
-      description: attachmentRow.description || '',
-      filename: attachmentRow.filename || '',
-      // file: undefined,
-      // group_ids: attachmentRow.attachments_groups?.map((g: any) => g.id) || []
+      title: serverData.title || '',
+      description: serverData.description || '',
+      filename: serverData.filename || '',
+      file: null,
+      attachments_groups: serverData.attachments_groups?.map((g: any) => g.option) || []
     },
     onPropChange: (data) => data,
     options: {
-      url: `/admin/attachments/${attachmentRow.id}`,
+      url: `/admin/attachments/${serverData.id}`,
       method: 'patch',
     },
     routerOptions: {
@@ -52,25 +52,12 @@ export default function AttachmentPreview({
       preserveScroll: true,
     },
     cleanBeforeSubmit: (data) => {
-      // Convert group_ids array to object format expected by Rails
       const formData: any = {
         title: data.title,
         description: data.description,
-        filename: data.filename
+        file: data.file?.[0],
+        attachments_groups_ids: data.attachments_groups.map((group: any) => group.value)
       };
-
-      // Only include file if it was changed
-      if (data.file && data.file[0]) {
-        formData.file = data.file[0];
-      }
-
-      // Convert array to object for Rails params
-      if (data.group_ids && Array.isArray(data.group_ids)) {
-        formData.group_ids = data.group_ids.reduce((acc: any, id: number, index: number) => {
-          acc[index] = id;
-          return acc;
-        }, {});
-      }
 
       return formData;
     }
@@ -82,14 +69,23 @@ export default function AttachmentPreview({
 
   return (
     <FormProvider {...formMethods}>
-      <div style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-      }}>
+      <form
+        onSubmit={onSubmit}
+        onKeyDown={(e) => {
+          if (e.shiftKey && e.key === 'Enter') {
+            e.preventDefault();
+            onSubmit(e);
+          }
+        }}
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+        }}
+      >
         <div style={{
           width: '100%',
         }}>
@@ -116,11 +112,11 @@ export default function AttachmentPreview({
                 onClick={handleCopyLink}
               >
                 <a
-                  href={attachmentRow.public_url}
+                  href={serverData.public_url}
                   target="_blank"
                   className="link"
                 >
-                  {attachmentRow.filename}
+                  {truncateFilename(serverData.filename, 20)}
                 </a>
               </div>
               <div
@@ -136,7 +132,7 @@ export default function AttachmentPreview({
               <div
                 className="tooltip tooltip-bottom cursor-pointer"
                 data-tip={"Delete"}
-                onClick={() => handleDelete(attachmentRow.id, attachmentRow.filename)}
+                onClick={() => handleDelete(serverData.id, serverData.filename)}
               >
                 <FontAwesomeIcon icon={faDeleteLeft} />
               </div>
@@ -157,32 +153,20 @@ export default function AttachmentPreview({
                 </button>
               )}
               <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onSubmit(e);
-                }}
+                type="submit"
                 className="btn btn-sm btn-success"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Saving...' : 'Save'}
+                <FontAwesomeIcon icon={faCheck} />
               </button>
             </div>
           </div>
         </div>
-        <form
-          onSubmit={onSubmit}
-          onKeyDown={(e) => {
-            if (e.shiftKey && e.key === 'Enter') {
-              e.preventDefault();
-              onSubmit(e);
-            }
-          }}
+        <div
           style={{
             flex: 1,
-            // backgroundColor: 'white',
             borderBottom: '1px solid #ddd',
-            // padding: '4px',
             padding: '4px',
             backgroundColor: 'white'
           }}
@@ -201,13 +185,7 @@ export default function AttachmentPreview({
               name="description"
               label="Description"
               type="textarea"
-              rows={4}
-              registerProps={{ required: false }}
-            />
-
-            <FormField.Field
-              name="filename"
-              label="Filename"
+              rows={6}
               registerProps={{ required: false }}
             />
 
@@ -217,14 +195,12 @@ export default function AttachmentPreview({
               registerProps={{ required: false }}
             />
 
-            <FormField.GroupsSelect
-              name="group_ids"
-              label="Groups"
-              groups={allGroups}
-              registerProps={{ required: false }}
+            <AttachmentGroupSelector
+              name="attachments_groups"
+              isMulti={true}
             />
           </FormField.Container>
-        </form>
+        </div>
         <div style={{
           backgroundColor: 'white',
           padding: '4px',
@@ -241,13 +217,13 @@ export default function AttachmentPreview({
             <div style={{
               flex: 1,
               height: '100%',
-              backgroundImage: `url(${attachmentRow.public_url})`,
+              backgroundImage: `url(${serverData.public_url})`,
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
             }} />
           </div>
         </div>
-      </div>
+      </form>
     </FormProvider>
   )
 }

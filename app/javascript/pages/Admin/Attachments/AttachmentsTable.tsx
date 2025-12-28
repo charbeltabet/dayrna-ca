@@ -1,4 +1,4 @@
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faLayerGroup, faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect, useRef } from 'react';
 import { Link, router } from '@inertiajs/react';
@@ -255,9 +255,10 @@ export default function AttachmentsTable({
               preserveState={true}
             >
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-info"
               >
                 Groups
+                <FontAwesomeIcon icon={faLayerGroup} />
               </button>
             </Link>
             <Link
@@ -268,9 +269,10 @@ export default function AttachmentsTable({
               only={['previewed_attachment']}
             >
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-success btn-primary"
               >
                 New
+                <FontAwesomeIcon icon={faPlus} />
               </button>
             </Link>
           </div>

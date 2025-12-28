@@ -156,15 +156,12 @@ class HomePageData < ApplicationRecord
   def home_form_hero_section_gallery_group(hero_section)
     return unless hero_section
 
-    attachment_group = AttachmentsGroup.find_by(id: hero_section["gallery_group_id"])
-    return unless attachment_group
+    attachments_group = AttachmentsGroup.find_by(
+      id: hero_section["gallery_group_id"]
+    )
+    return unless attachments_group
 
-    {
-      value: attachment_group.id,
-      label: attachment_group.title,
-      description: attachment_group.description,
-      attachment_count: attachment_group.record_attachments.count
-    }
+    attachments_group.option
   end
 
   def home_component_scripture_slides(scripture_slides)

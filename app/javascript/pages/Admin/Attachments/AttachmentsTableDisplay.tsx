@@ -110,29 +110,6 @@ export default function AttachmentsTableDisplay({
       )
     },
     {
-      name: "filename",
-      label: "Name",
-      renderCell: (row: any) => (
-        <div style={{
-          minWidth: '150px',
-          overflowY: 'auto',
-          whiteSpace: 'normal',
-          wordBreak: 'break-word',
-          paddingRight: '4px',
-        }}>
-          <Link
-            className="link link-primary"
-            style={{ cursor: 'pointer' }}
-            href={`/admin/attachments/${row.id}`}
-            preserveState={true}
-            only={['previewed_attachment']}
-          >
-            {truncateFilename(row.filename, 20)}
-          </Link>
-        </div >
-      )
-    },
-    {
       name: "title",
       label: "Title",
       renderCell: (row: any) => (
@@ -157,6 +134,21 @@ export default function AttachmentsTableDisplay({
           {truncateText(row.description, 1000)}
         </div>
       ),
+    },
+    {
+      name: "filename",
+      label: "File name",
+      renderCell: (row: any) => (
+        <div style={{
+          minWidth: '150px',
+          overflowY: 'auto',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          paddingRight: '4px',
+        }}>
+          {truncateFilename(row.filename, 20)}
+        </div >
+      )
     },
     {
       name: "created_at",

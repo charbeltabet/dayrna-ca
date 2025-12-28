@@ -72,6 +72,37 @@ class RecordAttachment < ApplicationRecord
     end
   end
 
+  def attach_file(file)
+    filename = file.original_filename
+    custom_key = "attachments/#{self.id}/#{filename}"
+
+    self.file.purge
+    self.file.attach(
+      io: file.tempfile,
+      filename: filename,
+      content_type: file.content_type,
+      key: custom_key
+    )
+  end
+
+  def associate_to_attachment_groups(ids)
+    if ids
+      current_group_ids = self.attachments_group_ids
+      return if current_group_ids.sort == ids.sort
+
+      self.attachment_group_memberships.destroy_all
+
+      ids.each do |group_id|
+        AttachmentGroupMembership.create!(
+          record_attachment_id: self.id,
+          attachments_group_id: group_id
+        )
+      end
+    elsif ids == []
+      self.attachment_group_memberships.destroy_all
+    end
+  end
+
   private
 
   def byte_size
