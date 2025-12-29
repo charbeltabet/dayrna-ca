@@ -77,6 +77,32 @@ export default function NewAttachmentForm({
     }
   }
 
+  const handlePaste = (event: React.ClipboardEvent) => {
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.tagName === 'TEXTAREA' && activeElement.getAttribute('name') === 'files_urls') {
+      // Allow default paste behavior for the URLs textarea
+      return;
+    }
+
+    const items = event.clipboardData.items;
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file) {
+          event.preventDefault(); // Prevent default paste behavior
+          setValue('files', [...files, file], { shouldDirty: true });
+          toast.custom((id) => (
+            <Toast
+              id={`upload-success-toast-${id}`}
+              level="success"
+              message={`File "${file.name}" added successfully.`}
+            />
+          ));
+        }
+      }
+    }
+  };
+
   const loading = isSubmitting || fetchingFiles;
 
   const acceptedTypes = ['image/*', 'application/pdf', '.doc', '.docx'];
@@ -85,6 +111,7 @@ export default function NewAttachmentForm({
     <FormProvider {...formMethods}>
       <form
         onSubmit={onSubmit}
+        onPaste={handlePaste}
         style={{
           width: '100%',
           display: 'flex',
@@ -143,7 +170,7 @@ export default function NewAttachmentForm({
           backgroundColor: 'white',
           padding: '4px',
           height: '100%',
-          overflow: 'hidden',
+          overflow: 'auto',
         }}>
           <FormField.Container style={{
             backgroundColor: 'var(--color-base-300)',
@@ -210,7 +237,7 @@ export default function NewAttachmentForm({
             <div>Accepted types: {acceptedTypes.join(', ')}</div>
           </div>
 
-          <div className="divider text-sm my-2">Inputted Files</div>
+          <div className="divider text-sm my-2">Inputted Files ({files.length})</div>
 
           {files.length > 0 && (
             <div className="flex flex-col gap-2 mb-4">
