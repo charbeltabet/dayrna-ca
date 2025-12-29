@@ -122,14 +122,19 @@ class RecordAttachment < ApplicationRecord
   def acceptable_file
     return unless file.attached?
 
-    errors.add(:file, "is too large") if byte_size && byte_size > 10.megabytes
-    errors.add(:file, "must be a PDF or image") unless acceptable_type?
+    errors.add(:file, "is too large") if byte_size && byte_size > 100.megabytes
+    errors.add(:file, "must be an image, PDF, document, audio, or video file") unless acceptable_type?
   end
 
   def acceptable_type?
-    content_type&.in?(
-      [ "image/*", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ]
-    )
+    return false unless content_type
+
+    content_type.start_with?("image/", "audio/", "video/") ||
+      content_type.in?([
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ])
   end
 
   def cache_file_metadata

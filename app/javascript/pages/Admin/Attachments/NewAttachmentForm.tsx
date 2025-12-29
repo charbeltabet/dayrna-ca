@@ -105,7 +105,7 @@ export default function NewAttachmentForm({
 
   const loading = isSubmitting || fetchingFiles;
 
-  const acceptedTypes = ["image/*", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
+  const acceptedTypes = ["image/*", "audio/*", "video/*", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
   const maxSingleFileSize = 100 * 1024 * 1024; // 100 MB
   const maxTotalSize = 500 * 1024 * 1024; // 500 MB
   const maxFilesCount = 50;
