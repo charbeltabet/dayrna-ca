@@ -127,7 +127,9 @@ class RecordAttachment < ApplicationRecord
   end
 
   def acceptable_type?
-    content_type&.in?(%w[application/pdf image/jpeg image/png])
+    content_type&.in?(
+      [ "image/*", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ]
+    )
   end
 
   def cache_file_metadata
