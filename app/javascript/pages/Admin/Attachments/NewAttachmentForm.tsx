@@ -59,7 +59,7 @@ export default function NewAttachmentForm({
       setValue('files_urls', '');
       toast.custom((id) => (
         <Toast
-          id={`upload-error-toast-${id}`}
+          id={id}
           level="success"
           message={`${newFiles.length} ${pluralize(newFiles.length, 'file')} fetched successfully.`}
         />
@@ -67,7 +67,7 @@ export default function NewAttachmentForm({
     } catch (error) {
       toast.custom((id) => (
         <Toast
-          id={`upload-error-toast-${id}`}
+          id={id}
           level="error"
           message={String(error)}
         />
@@ -93,7 +93,7 @@ export default function NewAttachmentForm({
           setValue('files', [...files, file], { shouldDirty: true });
           toast.custom((id) => (
             <Toast
-              id={`upload-success-toast-${id}`}
+              id={id}
               level="success"
               message={`File "${file.name}" added successfully.`}
             />

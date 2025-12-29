@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     Object.entries(flash).forEach(([level, message]) => {
       toast.custom((id) => (
         <Toast
-          id={`admin-toast-${id}`}
+          id={id}
           level={level as any}
           message={message as string}
         />
