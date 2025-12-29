@@ -106,6 +106,9 @@ export default function NewAttachmentForm({
   const loading = isSubmitting || fetchingFiles;
 
   const acceptedTypes = ['image/*', 'application/pdf', '.doc', '.docx'];
+  const maxSingleFileSize = 100 * 1024 * 1024; // 100 MB
+  const maxTotalSize = 500 * 1024 * 1024; // 500 MB
+  const maxFilesCount = 50;
 
   return (
     <FormProvider {...formMethods}>
@@ -220,6 +223,10 @@ export default function NewAttachmentForm({
             <FormField.MultiFileInput
               name="files"
               acceptedTypes={acceptedTypes}
+              maxSingleFileSize={maxSingleFileSize}
+              maxTotalSize={maxTotalSize}
+              maxFilesCount={maxFilesCount}
+              label="Upload Files"
               registerProps={{ required: false }}
 
             />
