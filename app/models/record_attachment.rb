@@ -1,4 +1,14 @@
 class RecordAttachment < ApplicationRecord
+  class << self
+    def create_from_file(file)
+      title = file.original_filename
+      record_attachment = RecordAttachment.new(title: title)
+      record_attachment.save!(validate: false)
+      record_attachment.attach_file(file)
+      record_attachment.save!
+      record_attachment
+    end
+  end
   include Fetchable
 
   has_one_attached :file

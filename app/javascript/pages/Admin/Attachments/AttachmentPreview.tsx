@@ -5,8 +5,8 @@ import { faCheck, faDeleteLeft, faLink } from "@fortawesome/free-solid-svg-icons
 import { handleDelete } from "./AttachmentsTableDisplay";
 import { FormField } from "../../../components/FormField";
 import { useInertiaForm } from "../../../hooks/useInertiaForm";
-import { truncateFilename } from "../../utils";
 import AttachmentGroupSelector from "../Homepage/HomeForm/AttachmentGroupSelector";
+import { truncateFilename } from "../../../utils/strings";
 
 interface AttachmentPreviewProps {
   serverData: any;
@@ -45,11 +45,6 @@ export default function AttachmentPreview({
     options: {
       url: `/admin/attachments/${serverData.id}`,
       method: 'patch',
-    },
-    routerOptions: {
-      replace: false,
-      preserveState: false,
-      preserveScroll: true,
     },
     cleanBeforeSubmit: (data) => {
       const formData: any = {

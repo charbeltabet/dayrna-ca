@@ -75,8 +75,8 @@ export function useInertiaForm<T extends FieldValues>({
             [key]: cleanedData
           },
           {
-            replace: true,
-            preserveState: true,
+            replace: false,
+            preserveState: false,
             preserveScroll: true,
             ...routerOptions,
             onFinish: () => {

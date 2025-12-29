@@ -1,4 +1,13 @@
+export function pluralize(count: number, singular: string, plural?: string): string {
+  if (count === 1) {
+    return singular;
+  } else {
+    return plural || (singular + 's');
+  }
+}
+
 export function truncateText(text: string, maxLength: number): string {
+  if (!text) return '';
   if (text.length <= maxLength) {
     return text;
   }

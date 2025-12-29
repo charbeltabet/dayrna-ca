@@ -13,20 +13,7 @@ class AdminHomeController < ApplicationController
     home_page_data.assign_attributes(data: homepage_params)
     home_page_data.save!
 
-    render inertia: "Admin/Homepage/Index", props: {
-      home_page_data: home_page_data.home_form_data,
-      flash: {
-        success: "Homepage data updated successfully."
-      }
-    }
-  rescue ActiveRecord::RecordInvalid
-    render inertia: "Admin/Homepage/Index", props: {
-      home_page_data: home_page_data.home_form_data,
-      home_page_errors: home_page_data.errors.messages,
-      flash: {
-        error: home_page_data.errors.full_messages
-      }
-    }
+    redirect_to admin_home_path, flash: { success: "Homepage data updated successfully." }
   end
 
   private

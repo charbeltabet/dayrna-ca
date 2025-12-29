@@ -2,9 +2,9 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { get } from 'react-hook-form';
 import type { RegisterOptions } from 'react-hook-form';
 import clsx from 'clsx';
-import { forwardRef } from 'react';
-import Select from 'react-select';
-import { Link } from '@inertiajs/react';
+import { forwardRef, useState, useRef, useEffect } from 'react';
+import { faArrowPointer, faPaste, faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface ContainerProps {
   children: React.ReactNode;
@@ -176,149 +176,261 @@ const FileInput = ({
   )
 }
 
-interface GroupOption {
-  value: number;
-  label: string;
-}
-
-interface AttachmentGroup {
-  id: number;
-  title: string;
-}
-
-interface GroupsSelectProps {
+interface MultiFileInputProps {
   name: string;
   label?: string;
-  groups: AttachmentGroup[];
   hint?: string;
   registerProps?: RegisterOptions;
-  manageLink?: string;
+  acceptedTypes?: string[];
+  maxSingleFileSize?: number; // in bytes
+  maxTotalSize?: number; // in bytes
+  maxFilesCount?: number;
 }
 
-const GroupsSelect = ({
+export const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+};
+
+const MultiFileInput = ({
   name,
-  label = 'Groups',
-  groups = [],
+  label,
   hint = '',
   registerProps = {},
-  manageLink = '/admin/attachments'
-}: GroupsSelectProps) => {
-  const { control, formState: { errors } } = useFormContext();
+  acceptedTypes = ['image/*', 'application/pdf', '.doc', '.docx'],
+  maxSingleFileSize = 10 * 1024 * 1024, // 10MB default
+  maxTotalSize = 50 * 1024 * 1024, // 50MB default
+  maxFilesCount = 10
+}: MultiFileInputProps) => {
+  const { control, formState: { errors }, setError, clearErrors } = useFormContext();
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const error = get(errors, name);
   const hasError = Boolean(error);
 
-  const options: GroupOption[] = groups.map(group => ({
-    value: group.id,
-    label: group.title
-  }));
+  const validateFiles = (currentFiles: File[], newFiles: File[]) => {
+    clearErrors(name);
+
+    // Check file count
+    const totalCount = currentFiles.length + newFiles.length;
+    if (totalCount > maxFilesCount) {
+      setError(name, {
+        type: 'manual',
+        message: `Maximum ${maxFilesCount} files allowed (currently ${currentFiles.length}, trying to add ${newFiles.length})`
+      });
+      return false;
+    }
+
+    // Check individual file sizes
+    for (const file of newFiles) {
+      if (file.size > maxSingleFileSize) {
+        setError(name, {
+          type: 'manual',
+          message: `File "${file.name}" exceeds max size of ${formatFileSize(maxSingleFileSize)}`
+        });
+        return false;
+      }
+    }
+
+    // Check total size
+    const totalSize = [...currentFiles, ...newFiles].reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > maxTotalSize) {
+      setError(name, {
+        type: 'manual',
+        message: `Total size exceeds limit of ${formatFileSize(maxTotalSize)}`
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
-    <fieldset
-      className="fieldset"
-      style={{
-        padding: 0
-      }}
-    >
-      <legend
-        className="fieldset-legend"
-        style={{
-          paddingTop: 0,
-          paddingBottom: 4
-        }}
-      >
-        {label}
-      </legend>
-      <Controller
-        name={name}
-        control={control}
-        rules={registerProps}
-        render={({ field }) => (
-          <Select
-            isMulti
-            isClearable
-            value={options.filter(option =>
-              field.value?.includes(option.value)
-            )}
-            onChange={(selected) => {
-              const newGroupIds = selected ? selected.map((s: GroupOption) => s.value) : [];
-              field.onChange(newGroupIds);
-            }}
-            options={options}
-            placeholder="Select groups..."
-            className={clsx("select-primary", hasError && "border-error")}
-            classNamePrefix="select"
-            menuPlacement="top"
-            menuPosition="fixed"
-            hideSelectedOptions={false}
-            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-            styles={{
-              menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-              option: (base) => ({
-                ...base,
-                cursor: 'pointer',
-              }),
-              control: (base) => ({
-                ...base,
-                borderColor: hasError ? 'var(--color-error)' : '#d1bea7',
-                borderRadius: '0',
-                backgroundColor: 'var(--color-base-200)',
-                boxShadow: 'none',
-                cursor: 'pointer',
-                '&:hover': {
-                  borderColor: hasError ? 'var(--color-error)' : '#d1bea7',
-                },
-              }),
-              input: (base) => ({
-                ...base,
-                margin: 0,
-                padding: 0,
-                cursor: 'text'
-              }),
-              valueContainer: (base) => ({
-                ...base,
-                padding: '2px 8px',
-              }),
-              multiValue: (base) => ({
-                ...base,
-                backgroundColor: '#570df8',
-              }),
-              multiValueLabel: (base) => ({
-                ...base,
-                color: 'white',
-              }),
-              multiValueRemove: (base) => ({
-                ...base,
-                color: 'white',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: '#4506cb',
-                  color: 'white',
+    <Controller
+      name={name}
+      control={control}
+      rules={registerProps}
+      defaultValue={[]}
+      render={({ field: { onChange, value } }) => {
+        const files = (value || []) as File[];
+
+        const handleFiles = (newFiles: FileList | null) => {
+          if (!newFiles || newFiles.length === 0) return;
+
+          const fileArray = Array.from(newFiles);
+          if (validateFiles(files, fileArray)) {
+            onChange([...files, ...fileArray]);
+          }
+        };
+
+        const handleDrop = (e: React.DragEvent) => {
+          e.preventDefault();
+          setIsDragging(false);
+          handleFiles(e.dataTransfer.files);
+        };
+
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+          handleFiles(e.target.files);
+          // Reset the input value to allow re-adding the same file
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        };
+
+        const handlePaste = (e: ClipboardEvent) => {
+          // Handle files from clipboard
+          if (e.clipboardData?.files && e.clipboardData.files.length > 0) {
+            handleFiles(e.clipboardData.files);
+            return;
+          }
+
+          // Handle clipboard items (for screenshots/images)
+          const items = e.clipboardData?.items;
+          if (items) {
+            const fileArray: File[] = [];
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              if (item.kind === 'file') {
+                const file = item.getAsFile();
+                if (file) {
+                  fileArray.push(file);
                 }
-              })
+              }
+            }
+            if (fileArray.length > 0 && validateFiles(files, fileArray)) {
+              onChange([...files, ...fileArray]);
+            }
+          }
+        };
+
+        // Add paste event listener
+        useEffect(() => {
+          const container = containerRef.current;
+          if (container) {
+            container.addEventListener('paste', handlePaste);
+            return () => {
+              container.removeEventListener('paste', handlePaste);
+            };
+          }
+        }, [files]);
+
+        const handleRemoveFile = (index: number) => {
+          const newFiles = files.filter((_, i) => i !== index);
+          onChange(newFiles);
+          clearErrors(name);
+        };
+
+        return (
+          <fieldset
+            className="fieldset"
+            style={{
+              padding: 0
             }}
-          />
-        )}
-      />
-      {hint && (
-        <p className="label">{hint}</p>
-      )}
-      {error && (
-        <p className="text-error">{error.message}</p>
-      )}
-      {manageLink && (
-        <Link href={manageLink} className="link link-primary">
-          Manage or create Groups
-        </Link>
-      )}
-    </fieldset>
-  )
-}
+          >
+            {label && (
+              <legend
+                className="fieldset-legend"
+                style={{
+                  paddingTop: 0,
+                  paddingBottom: 4
+                }}
+              >
+                {label}
+              </legend>
+            )}
+            <div ref={containerRef} className="flex w-full flex-col">
+              {/* Uploaded files list */}
+              {/* Drag and drop area */}
+              <div
+                onClick={handleClick}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className="bg-base-200 grid place-items-center p-8 cursor-pointer transition-all"
+                style={{
+                  border: isDragging ? '1px solid #570df8' : '1px solid #d6cac1',
+                  backgroundColor: isDragging ? '#f0e6ff' : undefined
+                }}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={acceptedTypes.join(',')}
+                  onChange={handleChange}
+                  style={{ display: 'none' }}
+                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-12 h-12 mb-3 mx-auto"
+                  style={{
+                    color: isDragging ? '#570df8' : '#999'
+                  }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <div className="mb-2">
+                  Drag and drop, paste or click to select files
+                </div>
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 1
+                }}>
+                  <FontAwesomeIcon icon={faUpDownLeftRight} />
+                  <FontAwesomeIcon icon={faPaste} />
+                  <FontAwesomeIcon icon={faArrowPointer} />
+                </div>
+              </div>
+
+              {/* Error message */}
+              {hasError && (
+                <div className="alert alert-error p-3 mt-2">
+                  {error.message}
+                </div>
+              )}
+            </div>
+            {hint && !hasError && (
+              <p className="label mt-2">{hint}</p>
+            )}
+          </fieldset>
+        );
+      }}
+    />
+  );
+};
 
 export const FormField = {
   Container,
   Field,
   Section,
   FileInput,
-  GroupsSelect
+  MultiFileInput,
 }

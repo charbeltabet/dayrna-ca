@@ -3,7 +3,7 @@ import AttachmentGroupsTable from "./AttachmentGroupsTable";
 import NewAttachmentGroupForm from "./NewAttachmentGroupForm";
 import AttachmentGroupPreview from "./AttachmentGroupPreview";
 import { Link, router } from '@inertiajs/react';
-import { truncateText } from "../../utils";
+import { truncateText } from "../../../utils/strings";
 
 export function handleDelete(id: number, title: string) {
   if (window.confirm(`Are you sure you want to delete group "${title}"? This action cannot be undone.`)) {

@@ -69,81 +69,19 @@ class AdminAttachmentsController < ApplicationController
   end
 
   def create
-    attachments_params = params[:attachments]
-    group_id = params[:group_id]
+    files = create_params[:files] || {}
+
+    last_id = nil
     uploaded_records = []
 
-    attachments_params.each do |index, attachment_data|
-      file = attachment_data[:file]
-      title = attachment_data[:title]
-      description = attachment_data[:description]
-      group_ids = attachment_data[:group_ids] # Get group_ids from attachment data
-
-      record = RecordAttachment.new(
-        title: title,
-        description: description
-      )
-
-      # Save record first to get an ID for the custom key
-      record.save!
-
-      # Now attach the file with custom key using the record's ID
-      record.attach_file(file)
-      record.save! # Save again to persist the attachment
+    files.values.map do |file|
+      record = RecordAttachment.create_from_file(file)
 
       uploaded_records << record
-      Rails.logger.info "  Uploaded attachment ID: #{record.id}"
-
-      # If group_id is provided (from group upload context), associate with the group
-      if group_id.present?
-        AttachmentGroupMembership.find_or_create_by(
-          record_attachment_id: record.id,
-          attachments_group_id: group_id
-        )
-      end
-
-      # If group_ids are provided (from individual attachment form), associate with those groups
-      if group_ids.present?
-        # Handle both array and hash formats (FormData can send as hash with numeric keys)
-        group_ids_array = if group_ids.is_a?(Hash)
-          group_ids.values
-        elsif group_ids.is_a?(Array)
-          group_ids
-        else
-          [ group_ids ]
-        end
-
-        group_ids_array.each do |gid|
-          next if gid.blank?
-          # Verify the group exists before creating membership
-          if AttachmentsGroup.exists?(gid)
-            AttachmentGroupMembership.find_or_create_by(
-              record_attachment_id: record.id,
-              attachments_group_id: gid
-            )
-          else
-            Rails.logger.warn "Attempted to associate with non-existent group: #{gid}"
-          end
-        end
-      end
+      last_id = record.id
     end
 
-    last_id = uploaded_records.last.id
-
-    # Redirect based on whether we're uploading to a group or standalone
-    if group_id.present?
-      redirect_to "/admin/attachments/groups/#{group_id}", flash: { success: "#{uploaded_records.count} attachment(s) uploaded and associated with group." }
-    else
-      redirect_to "/admin/attachments/#{last_id}", flash: { success: "#{uploaded_records.count} attachment(s) uploaded successfully." }
-    end
-  rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Validation error uploading attachments: #{e.message}"
-    redirect_path = group_id.present? ? "/admin/attachments/groups/#{group_id}" : "/admin/attachments"
-    redirect_to redirect_path, flash: { error: e.message }
-  rescue => e
-    Rails.logger.error "Error uploading attachments: #{e.message}"
-    redirect_path = group_id.present? ? "/admin/attachments/groups/#{group_id}" : "/admin/attachments"
-    redirect_to redirect_path, flash: { error: "Failed to upload attachments: #{e.message}" }
+    redirect_to "/admin/attachments/#{last_id}", flash: { success: "#{uploaded_records.count} attachment(s) uploaded successfully." }
   end
 
   def update
@@ -157,12 +95,6 @@ class AdminAttachmentsController < ApplicationController
     record_attachment.associate_to_attachment_groups(attachments_groups_ids) if attachments_groups_ids
 
     redirect_to "/admin/attachments/#{record_attachment.id}", flash: { success: "Attachment #{record_attachment.filename} updated successfully." }
-  rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Validation error updating attachment: #{e.message}"
-    redirect_to "/admin/attachments/#{params[:id]}", flash: { error: e.message }
-  rescue => e
-    Rails.logger.error "Error updating attachment: #{e.message}"
-    redirect_to "/admin/attachments/#{params[:id]}", flash: { error: "Failed to update attachment: #{e.message}" }
   end
 
   def destroy
@@ -199,9 +131,6 @@ class AdminAttachmentsController < ApplicationController
       records.destroy_all
       redirect_to "/admin/attachments", flash: { success: "#{count} attachment(s) deleted successfully." }
     end
-  rescue => e
-    Rails.logger.error "Error deleting attachment(s): #{e.message}"
-    redirect_to "/admin/attachments", flash: { error: "Failed to delete attachment(s): #{e.message}" }
   end
 
   def groups_json
@@ -315,12 +244,6 @@ class AdminAttachmentsController < ApplicationController
 
     group.save!
     redirect_to "/admin/attachments/groups/#{group.id}", flash: { success: "Group '#{group.title}' created successfully." }
-  rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Validation error creating group: #{e.message}"
-    redirect_to "/admin/attachments/groups", flash: { error: e.message }
-  rescue => e
-    Rails.logger.error "Error creating group: #{e.message}"
-    redirect_to "/admin/attachments/groups", flash: { error: "Failed to create group: #{e.message}" }
   end
 
   def update_group
@@ -334,12 +257,6 @@ class AdminAttachmentsController < ApplicationController
     group.update!(update_params) if update_params.any?
 
     redirect_to "/admin/attachments/groups/#{group.id}", flash: { success: "Group '#{group.title}' updated successfully." }
-  rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.error "Validation error updating group: #{e.message}"
-    redirect_to "/admin/attachments/groups/#{params[:id]}", flash: { error: e.message }
-  rescue => e
-    Rails.logger.error "Error updating group: #{e.message}"
-    redirect_to "/admin/attachments/groups/#{params[:id]}", flash: { error: "Failed to update group: #{e.message}" }
   end
 
   def destroy_group
@@ -363,9 +280,6 @@ class AdminAttachmentsController < ApplicationController
       groups.destroy_all
       redirect_to "/admin/attachments/groups", flash: { success: "#{count} group(s) deleted successfully." }
     end
-  rescue => e
-    Rails.logger.error "Error deleting group(s): #{e.message}"
-    redirect_to "/admin/attachments/groups", flash: { error: "Failed to delete group(s): #{e.message}" }
   end
 
   def associate_to_group
@@ -394,9 +308,6 @@ class AdminAttachmentsController < ApplicationController
 
     message = created_count == 1 ? "1 attachment associated to '#{group.title}'." : "#{created_count} attachment(s) associated to '#{group.title}'."
     redirect_to "/admin/attachments/groups/#{group.id}", flash: { success: message }
-  rescue => e
-    Rails.logger.error "Error associating attachment(s): #{e.message}"
-    redirect_to "/admin/attachments/groups/#{params[:id]}", flash: { error: "Failed to associate attachment(s): #{e.message}" }
   end
 
   def disassociate_from_group
@@ -421,9 +332,6 @@ class AdminAttachmentsController < ApplicationController
 
     message = count == 1 ? "1 attachment disassociated from '#{group.title}'." : "#{count} attachment(s) disassociated from '#{group.title}'."
     redirect_to "/admin/attachments/groups/#{group.id}", flash: { success: message }
-  rescue => e
-    Rails.logger.error "Error disassociating attachment(s): #{e.message}"
-    redirect_to "/admin/attachments/groups/#{params[:id]}", flash: { error: "Failed to disassociate attachment(s): #{e.message}" }
   end
 
   def search
@@ -462,6 +370,15 @@ class AdminAttachmentsController < ApplicationController
   end
 
   private
+
+  def create_params
+    params
+      .require(:admin_attachments)
+      .permit(
+        :files_urls,
+        files: {},
+      )
+  end
 
   def update_params
     params

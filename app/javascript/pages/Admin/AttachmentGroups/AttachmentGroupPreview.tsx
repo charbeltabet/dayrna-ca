@@ -3,7 +3,7 @@ import { FormEventHandler, useState } from "react";
 import AttachmentsTable from "../Attachments/AttachmentsTable";
 import NewAttachmentForm from "../Attachments/NewAttachmentForm";
 import { Link, router } from "@inertiajs/react";
-import { truncateText } from "../../utils";
+import { truncateText } from "../../../utils/strings";
 
 interface AttachmentGroupPreviewProps {
   groupRow: any;
@@ -98,9 +98,6 @@ export default function AttachmentGroupPreview({
 
       {showUploadForm ? (
         <NewAttachmentForm
-          groupId={groupRow.id}
-          onCancel={() => setShowUploadForm(false)}
-          title="Upload New Attachments To Group"
         />
       ) : (
         <>
@@ -350,7 +347,6 @@ export default function AttachmentGroupPreview({
                 }}
                 searchQuery={attachmentsQuery}
                 onlyParam="previewed_group"
-                queryParam="attachments_query"
                 title="Attachments"
               />
             </div>

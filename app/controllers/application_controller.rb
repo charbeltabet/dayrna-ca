@@ -1,6 +1,23 @@
 class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
+  rescue_from StandardError do |exception|
+    if Rails.env.production?
+      Rails.logger.error "Unhandled exception: #{exception.message}\n#{exception.backtrace.join("\n")}"
+      redirect_to request.referer || root_path, flash: { error: "An error occurred: #{exception.message}" }
+    else
+      raise exception
+    end
+  end
+
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    if Rails.env.production?
+      Rails.logger.error "Record invalid: #{exception.record.errors.full_messages.join(', ')}"
+      redirect_to request.referer || root_path, flash: { error: "Record invalid: #{exception.record.errors.full_messages.join(', ')}" }
+    else
+      raise exception
+    end
+  end
 
   inertia_share do
     # Get home page data for the navigation bar

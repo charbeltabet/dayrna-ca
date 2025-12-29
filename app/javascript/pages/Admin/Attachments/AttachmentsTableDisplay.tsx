@@ -1,9 +1,9 @@
 import AttachmentsTable from "./AttachmentsTable";
 import { Link, router } from '@inertiajs/react';
-import { truncateFilename, truncateText } from "../../utils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDeleteLeft, faPenToSquare, faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import { formatDateTime } from "../../Announcements/dates";
+import { truncateText, truncateFilename } from "../../../utils/strings";
 
 export function handleDelete(id: number, filename: string) {
   if (window.confirm(`Are you sure you want to delete "${filename}"? This action cannot be undone.`)) {
