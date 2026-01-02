@@ -1,20 +1,31 @@
 class AdminAttachmentsController < ApplicationController
+  PER_PAGE = 50
+
   def index
+    page = [ params.fetch("page", 1).to_i, 1 ].max
+    records_count = RecordAttachment.count
+
     render inertia: "Admin/Attachments/Index", props: {
-      attachments: -> {
-        fields = params[:fields]
-        search_fields = [ "title", "description" ]
+      attachments: InertiaRails.scroll(
+        {
+          page_name: "page",
+          previous_page: page > 1 ? page - 1 : nil,
+          next_page: records_count > page * PER_PAGE ? page + 1 : nil,
+          current_page: page,
+          total_count: records_count
+        },
+        wrapper: "data"
+      ) {
         order_by = params[:order_by]
         order = params[:order]
         query = params[:query]
-        offset = params[:offset]
-        limit = params[:limit]
+        offset = (page - 1) * PER_PAGE
+        limit = PER_PAGE
 
         records = RecordAttachment.all
 
         filtered_records = records.fetch_records({
-          fields: fields,
-          search_fields: search_fields,
+          search_fields: [ "title", "description" ],
           order_by: order_by,
           order: order,
           query: query,
@@ -41,7 +52,8 @@ class AdminAttachmentsController < ApplicationController
             order_by: order_by,
             total: records.count,
             byte_size: records.human_readable_total_size,
-            query: query
+            query: query,
+            has_more: records_count > page * PER_PAGE
           }
         }
       },

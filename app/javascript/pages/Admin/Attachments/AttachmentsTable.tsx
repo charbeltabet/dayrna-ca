@@ -1,7 +1,8 @@
 import { faLayerGroup, faPlus, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect, useRef } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { InfiniteScroll, Link, router } from '@inertiajs/react';
+import { handleTableScroll } from '../../../utils/infiniteScroll';
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => any>(func: T, delay: number): T {
@@ -41,6 +42,7 @@ interface Header {
 interface AttachmentsTableProps {
   headers: Header[];
   data: any[];
+  hasMore: boolean;
   filesCount?: number;
   byteSize?: string;
   onSortChange: (columnName: string, direction: 'asc' | 'desc' | null) => void;
@@ -58,6 +60,7 @@ interface AttachmentsTableProps {
 export default function AttachmentsTable({
   headers,
   data,
+  hasMore,
   filesCount,
   byteSize,
   onSortChange,
@@ -192,6 +195,8 @@ export default function AttachmentsTable({
 
   const allSelected = data.length > 0 && selectedRows.length === data.length;
   const someSelected = selectedRows.length > 0 && selectedRows.length < data.length;
+
+  const infiniteScrollRef = useRef<any>(null)
 
   return (
     <div
@@ -362,7 +367,10 @@ export default function AttachmentsTable({
           </button>
         </div>
       )}
-      <div
+      <InfiniteScroll
+        ref={infiniteScrollRef}
+        data="attachments"
+        manual
         className="hidden-scrollbar"
         style={{
           flex: 1,
@@ -370,6 +378,7 @@ export default function AttachmentsTable({
           overflowX: 'auto',
           minHeight: 0
         }}
+        onScroll={(e: React.UIEvent<HTMLDivElement>) => handleTableScroll(e, infiniteScrollRef)}
       >
         <table style={{ width: '100%', borderCollapse: 'separate' }}>
           <thead style={{ position: 'sticky', top: 0, zIndex: 20 }}>
@@ -583,7 +592,20 @@ export default function AttachmentsTable({
             })}
           </tbody>
         </table>
-      </div>
+        {hasMore && (
+          <tr>
+            <td rowSpan={headers.length + 2} style={{ textAlign: 'center', padding: '16px', backgroundColor: 'red' }}>
+              <button
+                className="btn btn-primary btn-sm "
+                style={{ margin: '16px auto' }}
+                onClick={() => infiniteScrollRef.current.fetchNext()}
+              >
+                Load more
+              </button>
+            </td>
+          </tr>
+        )}
+      </InfiniteScroll>
 
       {data.length === 0 && (
         <div style={{ textAlign: 'center', padding: '32px', color: '#999' }}>

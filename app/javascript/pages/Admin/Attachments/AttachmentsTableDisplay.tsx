@@ -37,20 +37,6 @@ export default function AttachmentsTableDisplay({
       )
     },
     {
-      name: "human_readable_size",
-      label: "Size",
-      renderCell: (row: any) => (
-        <div style={{
-          width: '75px',
-          overflow: 'hidden',
-          whiteSpace: 'normal',
-          wordBreak: 'break-word',
-        }}>
-          {row.human_readable_size}
-        </div>
-      )
-    },
-    {
       name: "groups",
       label: "Groups",
       renderCell: (row: any) => (
@@ -151,6 +137,20 @@ export default function AttachmentsTableDisplay({
       )
     },
     {
+      name: "human_readable_size",
+      label: "Size",
+      renderCell: (row: any) => (
+        <div style={{
+          width: '75px',
+          overflow: 'hidden',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+        }}>
+          {row.human_readable_size}
+        </div>
+      )
+    },
+    {
       name: "created_at",
       label: "Created",
       headerStyles: {
@@ -210,6 +210,7 @@ export default function AttachmentsTableDisplay({
     <AttachmentsTable
       headers={headers}
       data={attachments.data}
+      hasMore={attachments.metadata.has_more}
       filesCount={attachments.metadata.total}
       byteSize={attachments.metadata.byte_size}
       onSortChange={handleSortChange}
