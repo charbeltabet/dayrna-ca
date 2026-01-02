@@ -150,7 +150,7 @@ export default function AttachmentPreview({
               <button
                 type="submit"
                 className="btn btn-sm btn-success"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isDirty}
               >
                 {isSubmitting ? 'Saving...' : 'Save'}
                 <FontAwesomeIcon icon={faCheck} />

@@ -4,7 +4,7 @@ import { faDownload, faShare } from '@fortawesome/free-solid-svg-icons';
 import { HomeSectionLayout } from '../../../components/HomeSectionLayout';
 
 export default function OurLadyIconDescription() {
-  const pdfUrl = "https://dayrnadevassets.tabet.tech/attachments/98/MD_DIASPORA_CERTIFICATE.pdf"
+  const pdfUrl = "https://dayrnadevassets.tabet.tech/attachments/106/MD DIASPORA CERTIFICATE.pdf"
   const pdfWidth = 500;
   const pdfHeight = 650;
   const iconUrl = "https://dayrnadevassets.tabet.tech/attachments/97/our_lady_of_the_diaspora.png";
