@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faClose, faFingerprint } from '@fortawesome/free-solid-svg-icons';
+import { truncateText } from '../utils/strings';
 
 interface PolygonCoordinates {
   x: number;
@@ -162,8 +163,9 @@ function LabeledImage({ src, labels = [] }: LabeledImageProps) {
               <div key={index}>
                 {/* Glowing square region */}
                 <div
-                  className={`absolute cursor-pointer transition-all duration-300 ${isActive ? 'z-20' : 'z-10'
+                  className={`tooltip tooltip-bottom absolute cursor-pointer transition-all duration-300 hover:z-50 ${isActive ? 'z-20' : 'z-10'
                     }`}
+                  data-tip={truncateText(label.text, 100)}
                   style={{
                     left: style.left,
                     top: style.top,

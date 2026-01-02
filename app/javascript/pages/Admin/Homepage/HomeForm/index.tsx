@@ -221,13 +221,13 @@ export default function HomeForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn btn-primary"
+            className="btn btn-success"
             style={{
               opacity: isSubmitting ? 0.6 : 1,
               cursor: isSubmitting ? 'not-allowed' : 'pointer'
             }}
           >
-            {isSubmitting ? 'Saving...' : 'Submit'}
+            {isSubmitting ? 'Saving...' : 'Save'}
           </button>
         </div>
       </form>
